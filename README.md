@@ -5,5 +5,5 @@
   URL格式为：@RequestMapping(value="/{transType}/{module}/{clazz}/{method}.mto" /*,method=RequestMethod.POST*/)
 # 包结构说明
   plat.api.* ：该包里面是客户端API发布的代码，这个在开发过程中，用来发布API接口给客户端人员。
-  plat.app.* ：该包是App服务的主框架代码，
+  plat.app.* ：该包是App服务的主框架代码。
   

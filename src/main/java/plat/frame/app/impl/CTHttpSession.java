@@ -22,7 +22,7 @@ public class CTHttpSession implements ICTSession
 	}
 	
 	@Override
-	public String getSessId()
+	public String getSessToken()
 	{
 		if ( session != null )
 		{
@@ -32,6 +32,7 @@ public class CTHttpSession implements ICTSession
 		return null;
 	}
 	
+	@Override
 	public boolean isValid()
 	{
 		if ( session == null || request.getSession( false ) == null )
@@ -49,16 +50,19 @@ public class CTHttpSession implements ICTSession
 		return false;
 	}
 	
+	@Override
 	public String getValue(String key) {
 		// TODO Auto-generated method stub
 		return (String)getObj(key);
 	}
 
+	@Override
 	public boolean setValue(String key, String value) {
 		// TODO Auto-generated method stub
 		return setObj(key,value);
 	}
-
+	
+	@Override
 	public Object getObj(String key) {
 		// TODO Auto-generated method stub
 		
@@ -69,7 +73,8 @@ public class CTHttpSession implements ICTSession
 		
 		return null;
 	}
-
+	
+	@Override
 	public boolean setObj(String key, Object value) {
 		// TODO Auto-generated method stub
 		if ( session != null )
@@ -80,7 +85,10 @@ public class CTHttpSession implements ICTSession
 		
 		return false;
 	}
-
+	
+	/******
+	 * 		 CTHttpSession特有的getter-setters
+	 ******/
 	public HttpSession getSession() {
 		return session;
 	}
@@ -95,5 +103,19 @@ public class CTHttpSession implements ICTSession
 
 	public void setRequest(HttpServletRequest request) {
 		this.request = request;
+	}
+
+	@Override
+	public String getEncKey(String type) {
+		// TODO Auto-generated method stub
+		return (String)session.getAttribute("_ENCKEY_"+type);
+	}
+
+	@Override
+	public boolean setEncKey(String type, String encKey) {
+		// TODO Auto-generated method stub
+		
+		session.setAttribute("_ENCKEY_"+type, encKey );
+		return true;
 	}
 }

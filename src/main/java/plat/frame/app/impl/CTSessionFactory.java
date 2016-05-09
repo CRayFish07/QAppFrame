@@ -29,13 +29,14 @@ public class CTSessionFactory
 		switch ( sessType )
 		{
 			case HTTP_SESS:
-				ICTSession session = new CTHttpSession( request, createSess );
-				break;
+				return new CTHttpSession( request, createSess );
 			case RDS_SESS:
 				break;
 			default:
 				break;
 		}
+		
+		return null;
 	}
 	
 	//setters; >>>>>>>

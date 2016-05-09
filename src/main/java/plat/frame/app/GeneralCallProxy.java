@@ -15,14 +15,17 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 
+import plat.constant.KBankApp;
 import plat.constant.KResponse;
+import plat.frame.api.QBaseBean;
 import plat.frame.api.annonation.DEFEND_TYPE;
 import plat.frame.api.annonation.ENC_TYPE;
 import plat.frame.api.annonation.FieldDefiner;
 import plat.frame.api.annonation.SESS_TYPE;
 import plat.frame.api.annonation.TransConfig;
-import plat.frame.app.define.ITransContext;
+import plat.frame.app.define.ICTSession;
 import plat.frame.app.define.MessageType;
+import plat.frame.app.impl.CTSessionFactory;
 import plat.frame.app.impl.TargetSearcher;
 import plat.frame.app.impl.TransContext;
 import plat.frame.app.impl.UrlParseBean;
@@ -74,30 +77,26 @@ public class GeneralCallProxy extends CallProxy
 			//查找URL对应的方法,查找方法,采用同名策略.
 			Method targetMethod = tsearcher.findTargetMethod(targetClz,urlbean.getMethodName());
 
-			logger.info("__springAppContext"+AppContextHolder.getContext());
-
-			//获得服务接收的报文类信息.
+			//获得服务接收和返回的报文类型信息,没有数据.
 			MessageType messageType = initMessageType( targetClz, targetMethod );
 
 			long time1 = new Date().getTime();
 			logger.info("__TIME_COUNT:METHOD_SEARCH:"+(time1 - time0));
 
-			//获得请求报文.
-			String indata = getInputString( request, "utf-8" );
-			if ( StringUtil.isEmpty(indata) )
-			{
-				logger.error("ERROR:请求报文为空.");
-				throw new AppException(KResponse.INPUT_ERROR, "请求报文为空." );
-			}
-
 			long time2 = new Date().getTime();
 			logger.info("__TIME_COUNT:INTPUT_READ:"+(time2 - time1));
+			
+			//创建会话CTSessionFactory
+			ICTSession session = new CTSessionFactory()
+										.setRequset(request)
+										.setSessType(SESS_TYPE.HTTP_SESS)
+										.createSession();
 
 			//创建应用上下文.
-			ITransContext context = new TransContext();
+			TransContext context = new TransContext().setSession(session);
 
 			//按照消息类型信息解析请求报文并放到上线文中.
-			parseMessage( context, messageType, indata );
+			parseMessage( request,context, messageType );
 
 			checkInputValue( context.getReqBody(), messageType.getReqBodyClz() );
 
@@ -160,17 +159,10 @@ public class GeneralCallProxy extends CallProxy
 		//		return "fail";
 	}
 	
-/*	private String getTraceInfo( HttpServletRequest request )
+	private String getTraceInfo( HttpServletRequest request )
 	{
-		HttpSession session = request.getSession(false);
-		
-		String custNo = (String)session.getAttribute(SessConsts.CUSTNO);
-		String mobile = (String)session.getAttribute(SessConsts.MOBILENO);
-		
-		custNo = custNo == null ? "":custNo;
-		mobile = mobile == null ? "":mobile;
-		return custNo+"#"+mobile;
-	}*/
+		return "";
+	}
 
 	/**
 	 * 组装错误报文.
@@ -207,8 +199,9 @@ public class GeneralCallProxy extends CallProxy
 	 * @param context
 	 * @param msgType
 	 * @return
+	 * @throws Exception 
 	 */
-	private String packResponse( IBusinessContext context, MessageType msgType )
+	private String packResponse( TransContext context, MessageType msgType ) throws Exception
 	{
 		Map rspMap = new HashMap<String,Object>();
 		rspMap.put("head", context.getRspHead());
@@ -225,12 +218,20 @@ public class GeneralCallProxy extends CallProxy
 	 * @param msgType
 	 * @param indata
 	 * @return
-	 * @throws AppException 
+	 * @throws Exception 
 	 */
-	private void parseMessage( ITransContext context, MessageType msgType, String indata ) throws AppException
+	private void parseMessage( HttpServletRequest request, TransContext context, MessageType msgType ) throws Exception
 	{
 		//查看是否强制明文,该功能用于测试.
-		msgType.forcePlain = PropertiesReader.getBoolean("FORCEPLAIN");
+		msgType.forcePlain = PropertiesReader.getBoolean("forcePlain");
+		
+		//获得请求报文.
+		String indata = getInputString( request, "utf-8" );
+		if ( StringUtil.isEmpty(indata) )
+		{
+			logger.error("ERROR:请求报文为空.");
+			throw new AppException(KResponse.INPUT_ERROR, "请求报文为空." );
+		}
 
 		//根据定义的消息类型,解析请求报文.
 		//并填写消息格式信息.
@@ -246,10 +247,12 @@ public class GeneralCallProxy extends CallProxy
 			throw new AppException(KResponse.INPUT_ERROR, "NH,"+KResponse.MSG_SYS_ERROR );
 		}
 
+		//解析请求头.
 		Gson gson = new Gson();
 		ReqMessageHead reqHead = gson.fromJson(header,ReqMessageHead.class);
 		context.setReqHead(reqHead);
 
+		//请求报文报文体.
 		if ( msgType.getReqBodyClz() != null )
 		{
 			if ( body == null )
@@ -257,15 +260,16 @@ public class GeneralCallProxy extends CallProxy
 				throw new AppException(KResponse.INPUT_ERROR, "NC,"+KResponse.NET_BUSY  );
 			}
 
-			Object reqBody = gson.fromJson(body, msgType.getReqBodyClz());
+			QBaseBean reqBody = (QBaseBean)gson.fromJson(body, msgType.getReqBodyClz());
 			context.setReqBody(reqBody);
 		}
 
+		//返回报文.
 		if ( msgType.getRspBodyClz() != null )
 		{
 			try
 			{
-				context.setRspBody(msgType.getRspBodyClz().newInstance());
+				context.setRspBody((QBaseBean)msgType.getRspBodyClz().newInstance());
 			}
 			catch ( Exception e)
 			{
@@ -322,9 +326,9 @@ public class GeneralCallProxy extends CallProxy
 	 * @param messageType
 	 * @param data
 	 * @return
-	 * @throws AppException 
+	 * @throws Exception 
 	 */
-	private String decryptMessage( ITransContext context, MessageType messageType, String inData ) throws AppException
+	private String decryptMessage( TransContext context, MessageType messageType, String inData ) throws Exception
 	{
 		//TODEL
 		logger.info(String.format("REQ_MSG_ENC:LEN[%d][%s]", inData.length(), inData ));
@@ -335,7 +339,7 @@ public class GeneralCallProxy extends CallProxy
 		}
 
 		//报文版本类型.
-		String msgVer = inData.substring(0, 4);
+		String msgVer = inData.substring(0, 4);		//HH01 FFFF
 		messageType.setMsgFmt(msgVer);
 
 		//报文实体.
@@ -375,9 +379,9 @@ public class GeneralCallProxy extends CallProxy
 	 * @param context
 	 * @param encData
 	 * @return
-	 * @throws AppException 
+	 * @throws Exception 
 	 */
-	private String decryptDataRSA( ITransContext context, String encData ) throws AppException
+	private String decryptDataRSA( TransContext context, String encData ) throws Exception
 	{
 		//解密
 		String datas[] = encData.split("#");
@@ -392,50 +396,25 @@ public class GeneralCallProxy extends CallProxy
 		String encJson = datas[2];
 
 		//验证签名
-		try {
-			String mysign = MD5Encrypt.MD5(encAESKey+"#"+encJson+"#ebank123" );
-			if ( !sign0.equalsIgnoreCase(mysign) )
-			{
-				logger.error(String.format("ERRCODE[%s][数据签名错误,mysign=%s]",KResponse.TRANS_ILLEGAL,mysign));
-				throw new AppException( KResponse.TRANS_ILLEGAL, "签名出错.", false );
-			}
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-			return null;
-		}
-
-		String AESKey = null;
-		try
+		String mysign = MD5Encrypt.MD5(encAESKey+"#"+encJson+"#ebank123" );
+		if ( !sign0.equalsIgnoreCase(mysign) )
 		{
-			AESKey = RSATools.getInstance().dencryptDataPKCS1Padding(encAESKey);
-			if ( AESKey == null )
-			{
-				logger.error("无法解析出AES密钥,encAESKey="+encAESKey);
-				return null;
-			}
-		}
-		catch (Exception e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
+			logger.error(String.format("ERRCODE[%s][数据签名错误,mysign=%s]",KResponse.TRANS_ILLEGAL,mysign));
+			throw new AppException( KResponse.TRANS_ILLEGAL, "报文签名出错.", false );
 		}
 
-		String json = AESTools.AESDecrypt(encJson, AESKey );
-		if ( json == null )
-		{
-			logger.error("无法解析出请求数据,encJson="+encJson);
-			return null;
-		}
+		String AESKey = new String( RSATools.getInstance().dencryptData(encAESKey),"UTF-8");
 
-		logger.info("__FROM_APP_RSA_DEC:"+json);
+		logger.info("__FROM_APP_AES_KEY:"+AESKey);
 
-		context.saveSecKey( ENC_TYPE.RSA_NS, AESKey );
+		String json = AESTools.decrypt(encJson, AESKey);
 
-		logger.info("AESKey="+AESKey);
+		logger.info("__FROM_APP_RSA_DECDATA:"+json);
 
-		return json;
+		//保存密钥用于返回报文加密.
+		context.saveTransValue( KBankApp.SECKEY_MARK+ENC_TYPE.RSA_NS, AESKey );
+
+		return "";
 	}
 
 	/**
@@ -443,8 +422,9 @@ public class GeneralCallProxy extends CallProxy
 	 * @param context
 	 * @param inData
 	 * @return
+	 * @throws Exception 
 	 */
-	private String decryptDataAES( ITransContext context, String inData )
+	private String decryptDataAES( TransContext context, String inData ) throws Exception
 	{
 		//解密
 		String dr[] = inData.split("#");
@@ -459,25 +439,15 @@ public class GeneralCallProxy extends CallProxy
 		String encJson = dr[1];
 
 		//验证签名.
-		try {
-			String mysign = MD5Encrypt.MD5(encJson+"#"+"ebank123" );
-			if ( !sign0.equalsIgnoreCase(mysign))
-			{
-				logger.error(String.format("ERRCODE[%s][数据签名验证不通过.][mysign=%s]",	KResponse.TRANS_ILLEGAL, mysign ));
-				return null;
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		String mysign = MD5Encrypt.MD5(encJson+"#"+"ebank123" );
+		if ( !sign0.equalsIgnoreCase(mysign))
+		{
+			logger.error(String.format("ERRCODE[%s][数据签名验证不通过.][mysign=%s]",	KResponse.TRANS_ILLEGAL, mysign ));
 			return null;
 		}
 
-		String json = AESTools.AESDecrypt( encJson, context.getSecKey( ENC_TYPE.AES_SS ) );
-		if ( json == null )
-		{
-			logger.error("无法解析出请求数据,encJson="+encJson);
-			return null;
-		}
+		ICTSession session = context.getSession();
+		String json = AESTools.decrypt(encJson, session.getEncKey( KBankApp.SECKEY_MARK+ENC_TYPE.AES_SS ));
 
 		logger.info("__FROM_APP_AES_DEC="+json);
 
@@ -489,8 +459,9 @@ public class GeneralCallProxy extends CallProxy
 	 * @param messageType
 	 * @param data
 	 * @return
+	 * @throws Exception 
 	 */
-	private String encryptMessage( ITransContext context, MessageType messageType, String inData )
+	private String encryptMessage( TransContext context, MessageType messageType, String inData ) throws Exception
 	{
 		String retdata = inData;
 
@@ -506,10 +477,11 @@ public class GeneralCallProxy extends CallProxy
 		switch( messageType.encType )
 		{
 		case AES_SS:
-			retdata = AESTools.AESEncrypt(inData, context.getSecKey(ENC_TYPE.AES_SS) );
+			ICTSession session = context.getSession();
+			retdata = AESTools.encrypt(inData, session.getEncKey( KBankApp.SECKEY_MARK+ENC_TYPE.AES_SS ) );
 			break;
 		case RSA_NS:
-			retdata = AESTools.AESEncrypt(inData, context.getSecKey(ENC_TYPE.RSA_NS) );
+			retdata = AESTools.encrypt(inData, (String)context.getTransValue( KBankApp.SECKEY_MARK+ENC_TYPE.RSA_NS));
 			break;
 		case PLAIN:
 		case DEFAULT:
@@ -535,23 +507,6 @@ public class GeneralCallProxy extends CallProxy
 		//https session, aes encryption by default.
 		MessageType msgType = new MessageType( ENC_TYPE.AES_SS,
 				SESS_TYPE.HTTP_SESS, DEFEND_TYPE.DEFAULT );
-
-		//get class level enctype and sesstype.
-		/*		ClazzDefiner clzAnnot = clazz.getAnnotation(ClazzDefiner.class);
-		if ( clzAnnot != null )
-		{
-//			result.encType = clzAnnot.encrypt()==ENC_TYPE.DEFAULT?result.encType:clzAnnot.encrypt();
-//			result.sessType = clzAnnot.session()==SESS_TYPE.DEFAULT?result.sessType:clzAnnot.session();
-		}*/
-
-		//but method's is more effective than class level.
-
-		/*		MethodDefiner mtdAnnot = method.getAnnotation(MethodDefiner.class);
-		if ( mtdAnnot != null )
-		{
-//			result.encType = mtdAnnot.encrypt()==ENC_TYPE.DEFAULT?result.encType:mtdAnnot.encrypt();;
-//			result.sessType = mtdAnnot.session()==SESS_TYPE.DEFAULT?result.sessType:mtdAnnot.session();
-		}*/
 
 		TransConfig cfgAnnot = targetMethod.getAnnotation(TransConfig.class);
 		if ( cfgAnnot != null )
@@ -580,29 +535,18 @@ public class GeneralCallProxy extends CallProxy
 	private void parseParas( Method method, MessageType msgType ) throws AppException
 	{
 		Class<?> paras[] = method.getParameterTypes();
-		if ( paras == null || paras.length == 0 || paras.length > 3 )	//1,2,3:doTrans( context ...);
+		
+		//doTrans( context, [reqBody | rspBody] ) 
+		for ( int i = 1; i < paras.length; ++i )
 		{
-			throw new AppException( KResponse.INPUT_ERROR, String.format("接口参数非法[%s][paras:%s]",method.getName(),paras.length), false);
-		}
-
-		//doTrans( context, reqBody or rspBody ) 
-		if ( paras.length == 2 )
-		{
-			if ( paras[1].getSimpleName().startsWith("Req") )
+			if ( paras[i].getSimpleName().startsWith("Req") )
 			{
-				msgType.setReqBodyClz(paras[1]);
+				msgType.setReqBodyClz(paras[i]);
 			}
 			else
 			{
-				msgType.setRspBodyClz(paras[1]);
+				msgType.setRspBodyClz(paras[i]);
 			}
-		}
-
-		//doTrans( context, reqBody, rspBody )
-		if ( paras.length == 3 )
-		{
-			msgType.setReqBodyClz(paras[1]);
-			msgType.setRspBodyClz(paras[2]);
 		}
 	}
 }

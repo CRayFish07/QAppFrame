@@ -22,4 +22,8 @@ public interface ICTSession
 	
 	//销毁会话
 	public boolean destroySess();
+	
+	//协商密钥
+	public String getEncKey( String type );
+	public boolean setEncKey( String type, String encKey );
 }

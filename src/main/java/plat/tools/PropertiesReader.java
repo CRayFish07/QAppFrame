@@ -7,7 +7,7 @@ public class PropertiesReader
 {
 	private static boolean canlog = false;
 
-	private static final String CONFIG = "conf";
+	private static final String CONFIG = "qconf";
 	private static ResourceBundle CONFIG_RES = ResourceBundle.getBundle(CONFIG);
 	private PropertiesReader()
 	{

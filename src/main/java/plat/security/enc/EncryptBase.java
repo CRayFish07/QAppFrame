@@ -20,7 +20,7 @@ import javax.crypto.spec.SecretKeySpec;
 import plat.tools.BaseCoder;
 
 /***
- * 第二种加密方法.
+ * 使用X509的编码密钥进行RSA加密,具体见RSACryptUtil
  * @author zhangcq
  *
  */

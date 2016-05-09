@@ -2,13 +2,16 @@ package plat.security.enc;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -22,9 +25,11 @@ import org.apache.commons.lang3.ArrayUtils;
 
 public class RSAUtils
 {
-
 	public static int radix_16 = 16;
 	public static int radix_10 = 10;
+	
+	/*************
+	 * 			 公钥获取 ***************/
 	
 	//按照十六进制公钥获取
 	public static RSAPublicKey getPubKey(String pubModules,String pubExp )
@@ -44,6 +49,84 @@ public class RSAUtils
 		return buildRSAPublicKey(new BigInteger(pubModules, radix_10 ), new BigInteger( pubExp, radix_10 ));
 	}
 	
+	//按照模数和指数获得公钥.
+	public static RSAPublicKey buildRSAPublicKey(BigInteger modulus, BigInteger publicExponent)
+	{
+		try {
+			KeyFactory kf = KeyFactory.getInstance("RSA");
+			RSAPublicKeySpec spec = new RSAPublicKeySpec(modulus, publicExponent);
+			return (RSAPublicKey) kf.generatePublic(spec);
+		}
+		catch (Exception e)
+		{
+			throw new IllegalStateException(
+					"cannot build public key by modulus and exponent", e);
+		}
+	}
+	
+	/**
+	 * 根据cer文件获取公钥.
+	 * @param cerfile
+	 * @return
+	 * @throws Exception
+	 */
+	public static RSAPublicKey getPubKey( String cerfile ) throws Exception
+	{
+		CertificateFactory cff = null;
+		RSAPublicKey pk1 = null;
+		cff = CertificateFactory.getInstance("X.509");
+		InputStream in = new FileInputStream(cerfile);
+		//			InputStream in = app.getBaseContext().getResources()
+		//					.openRawResource(R.raw.zjrcbank); // 证书文件
+		Certificate cf = cff.generateCertificate(in);
+		pk1 = (RSAPublicKey)cf.getPublicKey(); // 得到证书文件携带的公钥
+
+		in.close();
+
+		return pk1;
+	}
+	
+	/**
+	 * 通过JKS文件读取公钥信息.
+	 * @param jskFile
+	 * @param storePass
+	 * @param keyAlias
+	 * @return
+	 */
+	public static RSAPublicKey getPubkey( String jskFile, String storePass, String keyAlias )
+	{
+		try
+		{
+			KeyStore keyStore = KeyStore.getInstance("JKS");
+
+			FileInputStream fin = new FileInputStream(jskFile);
+			keyStore.load(fin, storePass.toCharArray());
+			fin.close();
+			Certificate cert = keyStore.getCertificate(keyAlias);
+			RSAPublicKey pubkey = (RSAPublicKey)cert.getPublicKey();
+
+			return pubkey;
+		} catch (KeyStoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (CertificateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+	/*************
+	 * 			私钥获取 *************/
 	//按照十六进制私钥获取
 	public static RSAPrivateKey getPriKey(String pubModules, String priExp ) {
 		
@@ -62,20 +145,7 @@ public class RSAUtils
 		return buildRSAPrivateKey(new BigInteger(pubModules, radix_10 ), new BigInteger( priExp, radix_10 ));
 	}
 
-	private static RSAPublicKey buildRSAPublicKey(BigInteger modulus, BigInteger publicExponent)
-	{
-		try {
-			KeyFactory kf = KeyFactory.getInstance("RSA");
-			RSAPublicKeySpec spec = new RSAPublicKeySpec(modulus, publicExponent);
-			return (RSAPublicKey) kf.generatePublic(spec);
-		}
-		catch (Exception e)
-		{
-			throw new IllegalStateException(
-					"cannot build public key by modulus and exponent", e);
-		}
-	}
-	
+	//按照模数获取私钥.
 	public static RSAPrivateKey buildRSAPrivateKey(BigInteger modulus, BigInteger publicExponent) {
 		try {
 			KeyFactory kf = KeyFactory.getInstance("RSA");
@@ -108,50 +178,12 @@ public class RSAUtils
 		return pk2;
 	}
 	
-	public static RSAPublicKey getPubKey( String cerfile ) throws Exception
-	{
-		CertificateFactory cff = null;
-		RSAPublicKey pk1 = null;
-		cff = CertificateFactory.getInstance("X.509");
-		InputStream in = new FileInputStream(cerfile);
-		//			InputStream in = app.getBaseContext().getResources()
-		//					.openRawResource(R.raw.zjrcbank); // 证书文件
-		Certificate cf = cff.generateCertificate(in);
-		pk1 = (RSAPublicKey)cf.getPublicKey(); // 得到证书文件携带的公钥
-
-		in.close();
-
-		return pk1;
-	}
-
-	public static byte[] _encryptRsa(byte[] data, Cipher cipher)
-			throws Exception {
-		int fix = 128;
-		byte[] rst = null;
-		for (int i = 0; i * fix < data.length; i++) {
-			// 注意要使用2的倍数，否则会出现加密后的内容再解密时为乱码
-			byte[] tmp = cipher.doFinal(ArrayUtils.subarray(data, i * fix,
-					Math.min(data.length, (i + 1) * fix)));
-//			System.out.println("HEX=["+HexUtil.byte2HexStr(tmp)+"]");
-			rst = ArrayUtils.addAll(rst, tmp);
-		}
-		return rst;
-	}
-
-	public static byte[] _decryptRsa(byte[] data, Cipher cipher)
-			throws Exception {
-		int fix = 128;
-		byte[] rst = null;
-		for (int i = 0; i * fix < data.length; i++) {
-			// 注意要使用2的倍数，否则会出现加密后的内容再解密时为乱码
-			byte[] tmp = cipher.doFinal(ArrayUtils.subarray(data, i * fix,
-					Math.min(data.length, (i + 1) * fix)));
-//			System.out.println("e"HexUtil.byte2HexStr(tmp));
-			rst = ArrayUtils.addAll(rst, tmp);
-		}
-		return rst;
-	}
-	
+	/**
+	 * 根据encoded的字节获取私钥.
+	 * @param keyBytes
+	 * @return
+	 * @throws Exception
+	 */
 	public static PrivateKey getPrivateKey(byte[] keyBytes) throws Exception { 
 		PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
 		KeyFactory kf = KeyFactory.getInstance("RSA");

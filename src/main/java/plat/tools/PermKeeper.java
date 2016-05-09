@@ -14,4 +14,10 @@ public class PermKeeper
 	{
 		return PropertiesReader.getBoolean(KBankApp.duplicateMessageDefend);
 	}
+	
+	//防重检测开关
+	public static boolean isTest()
+	{
+		return PropertiesReader.getBoolean(KBankApp.isTest);
+	}
 }

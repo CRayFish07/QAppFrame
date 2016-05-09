@@ -1,14 +1,14 @@
 package plat.frame.app.define;
 
-import plat.frame.api.BaseRequestBean;
+import plat.frame.api.QBaseBean;
 
 public interface ITransContext
 {
 	//获取请求对象.
-	public Object getReqData();
+	public QBaseBean getReqData();
 	
 	//保存请求对象.
-	public void setReqData(BaseRequestBean reqData);
+	public void setReqData( QBaseBean reqData);
 	
 	//获取会话对象
 	public ICTSession getSession();

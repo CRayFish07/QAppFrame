@@ -15,9 +15,9 @@ public interface ICTSession
 	public boolean setObj( String key, Object value );
 	
 	//获取会话ID
-	public String getSessId();
+	public String getSessToken();
 	
-	//检查会话,是否有效.
+	//检查会话是否存在.即客户是否登录了.
 	public boolean isValid();
 	
 	//销毁会话

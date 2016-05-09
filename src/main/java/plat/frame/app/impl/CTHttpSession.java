@@ -10,17 +10,18 @@ import plat.frame.app.define.ICTSession;
  * @author zhangcq
  *
  */
-public class CTSession implements ICTSession
+public class CTHttpSession implements ICTSession
 {
 	HttpSession session;
 	HttpServletRequest request;
 	
-	public CTSession( HttpServletRequest req, boolean create )
+	public CTHttpSession( HttpServletRequest req, boolean create )
 	{
 		request = req;
 		session = req.getSession(create);
 	}
 	
+	@Override
 	public String getSessId()
 	{
 		if ( session != null )
@@ -41,6 +42,7 @@ public class CTSession implements ICTSession
 		return true;
 	}
 	
+	@Override
 	public boolean destroySess() {
 		// TODO Auto-generated method stub
 		session.invalidate();
@@ -78,5 +80,20 @@ public class CTSession implements ICTSession
 		
 		return false;
 	}
-	
+
+	public HttpSession getSession() {
+		return session;
+	}
+
+	public void setSession(HttpSession session) {
+		this.session = session;
+	}
+
+	public HttpServletRequest getRequest() {
+		return request;
+	}
+
+	public void setRequest(HttpServletRequest request) {
+		this.request = request;
+	}
 }

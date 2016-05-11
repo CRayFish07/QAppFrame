@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /***
- * ����Servlet Tomcat�����Ƿ�������.
+ * 健康监测Servlet Tomcat
  * @author zhangcq
  *
  */

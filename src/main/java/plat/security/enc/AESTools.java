@@ -1,5 +1,7 @@
 package plat.security.enc;
 
+import plat.constant.KResponse;
+import plat.frame.app.AppException;
 import plat.tools.BaseCoder;
 import plat.tools.StringUtil;
 
@@ -42,7 +44,7 @@ public class AESTools
 	{
 		if ( StringUtil.isEmpty(keyStr) )
 		{
-			throw new Exception("keystr is empty.");
+			throw new AppException(KResponse.INPUT_ERROR,"AES keystr is empty.");
 		}
 		
 		// 交易报文解密

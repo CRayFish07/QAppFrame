@@ -13,7 +13,7 @@ import plat.config.beans.XLog;
 
 public class MyWebAppInitializer implements WebApplicationInitializer
 {
-	//ÈİÆ÷³õÊ¼»¯.
+	//åˆå§‹åŒ–
     public void onStartup( ServletContext container)
     {
     	XLog.log("MyWebAppInitializer init start...");

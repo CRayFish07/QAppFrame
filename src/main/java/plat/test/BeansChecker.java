@@ -9,7 +9,7 @@ import plat.config.beans.BeansConfig;
 import plat.config.beans.XLog;
 
 /**
- * Beansʵ��
+ * 健康监测.
  * URL-ref:http://www.ibm.com/developerworks/cn/webservices/ws-springjava/
  * @author zhangcq
  *

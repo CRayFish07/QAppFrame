@@ -244,7 +244,7 @@ public class GeneralCallProxy extends CallProxy
 		JsonElement body = jo.get("body");
 		if ( header == null )
 		{
-			throw new AppException(KResponse.INPUT_ERROR, "NH,"+KResponse.MSG_SYS_ERROR );
+			throw new AppException(KResponse.INPUT_ERROR, KResponse.MSG_INPUT_ERROR );
 		}
 
 		//解析请求头.
@@ -257,7 +257,7 @@ public class GeneralCallProxy extends CallProxy
 		{
 			if ( body == null )
 			{
-				throw new AppException(KResponse.INPUT_ERROR, "NC,"+KResponse.NET_BUSY  );
+				throw new AppException(KResponse.INPUT_ERROR, KResponse.MSG_INPUT_ERROR  );
 			}
 
 			QBaseBean reqBody = (QBaseBean)gson.fromJson(body, msgType.getReqBodyClz());
@@ -267,14 +267,7 @@ public class GeneralCallProxy extends CallProxy
 		//返回报文.
 		if ( msgType.getRspBodyClz() != null )
 		{
-			try
-			{
-				context.setRspBody((QBaseBean)msgType.getRspBodyClz().newInstance());
-			}
-			catch ( Exception e)
-			{
-				throw new AppException(KResponse.FAIL, KResponse.MSG_SYS_ERROR);
-			}
+			context.setRspBody((QBaseBean)msgType.getRspBodyClz().newInstance());
 		}
 	}
 
@@ -368,7 +361,7 @@ public class GeneralCallProxy extends CallProxy
 		//由于报文有头 所以肯定不为空.
 		if ( StringUtil.isEmpty(retdata) )
 		{
-			throw new AppException(KResponse.AES_DECODE_FAILED, "很抱歉,系统错误 ,请重试.");
+			throw new AppException(KResponse.INPUT_ERROR, KResponse.MSG_INPUT_ERROR );
 		}
 
 		return retdata;
@@ -430,9 +423,8 @@ public class GeneralCallProxy extends CallProxy
 		String dr[] = inData.split("#");
 		if ( dr.length != 2 )
 		{
-			logger.error(String.format("ERRCODE[%s][输入数据拼接格式不对]data=%s",
-					KResponse.DATA_ILLEGAL, inData));
-			return null;
+			logger.error(String.format("ERRCODE[%s][输入数据拼接格式不对]data=%s",KResponse.INPUT_ERROR, inData));
+			throw new AppException(KResponse.INPUT_ERROR, KResponse.MSG_INPUT_ERROR);
 		}
 
 		String sign0 = dr[0];
@@ -443,7 +435,7 @@ public class GeneralCallProxy extends CallProxy
 		if ( !sign0.equalsIgnoreCase(mysign))
 		{
 			logger.error(String.format("ERRCODE[%s][数据签名验证不通过.][mysign=%s]",	KResponse.TRANS_ILLEGAL, mysign ));
-			return null;
+			throw new AppException(	KResponse.TRANS_ILLEGAL, "数据签名验证不通过");
 		}
 
 		ICTSession session = context.getSession();

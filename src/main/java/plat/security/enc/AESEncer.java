@@ -1,10 +1,16 @@
 package plat.security.enc;
 
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -35,10 +41,18 @@ public class AESEncer
 	 * @param keyStr
 	 * @param cipherAlgorithm
 	 * @return
+	 * @throws NoSuchPaddingException 
+	 * @throws NoSuchAlgorithmException 
+	 * @throws UnsupportedEncodingException 
+	 * @throws InvalidAlgorithmParameterException 
+	 * @throws InvalidKeyException 
+	 * @throws BadPaddingException 
+	 * @throws IllegalBlockSizeException 
 	 * @throws Exception
 	 */
-	public static byte[] encrypt( byte[] data, String keyStr, String cipherAlgorithm )
-			throws Exception
+	public static byte[] encrypt( byte[] data, String keyStr, String cipherAlgorithm ) 
+			throws NoSuchAlgorithmException, NoSuchPaddingException, UnsupportedEncodingException, 
+					InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException
 	{
 		Cipher cipher = Cipher.getInstance(cipherAlgorithm);
 		Key key =new SecretKeySpec(keyStr.getBytes("UTF-8"), KEY_ALGORITHM);
@@ -57,10 +71,18 @@ public class AESEncer
 	 * @param keyStr
 	 * @param cipherAlgorithm
 	 * @return
+	 * @throws NoSuchPaddingException 
+	 * @throws NoSuchAlgorithmException 
+	 * @throws UnsupportedEncodingException 
+	 * @throws InvalidAlgorithmParameterException 
+	 * @throws InvalidKeyException 
+	 * @throws BadPaddingException 
+	 * @throws IllegalBlockSizeException 
 	 * @throws Exception
 	 */
-	public static byte[] decrypt(byte[] data, String keyStr, String cipherAlgorithm)
-			throws Exception
+	public static byte[] decrypt(byte[] data, String keyStr, String cipherAlgorithm) 
+							throws NoSuchAlgorithmException, NoSuchPaddingException, UnsupportedEncodingException,
+							InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException
 	{
 		// 实例化
 		Cipher cipher = Cipher.getInstance(cipherAlgorithm);

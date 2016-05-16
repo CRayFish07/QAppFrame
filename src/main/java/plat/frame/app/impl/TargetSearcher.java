@@ -7,8 +7,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import plat.frame.api.annonation.MethodDefiner;
-import plat.tools.StringUtil;
-
 /**
  * 此类用于根据不同请求类型来搜索到目标类的包
  * 然后拼接类名称，搜索到类方法.
@@ -52,63 +50,39 @@ public class TargetSearcher
 	}
 
 	/**
-	 * 根据交易类型获得目标类路径.
-	 * @param transType
-	 * @return
-	 */
-	public String parseTargetPath( String transType )
-	{
-		return pathMap.get(transType);
-	}
-
-	/**
 	 * 将URL映射为全路径.
 	 * @param module
 	 * @param clazz
 	 * @return
 	 * @throws ClassNotFoundException 
 	 */
-	public Class<?> findTargetClass( UrlParseBean urlbean ) throws ClassNotFoundException
+	public Class<?> findTargetClass( URLMapper mapper ) throws ClassNotFoundException
 	{
-		//查询目标类的位置.
-		String targetPkg = parseTargetPath(urlbean.getTransType());
-		if ( StringUtil.isEmpty(targetPkg))
-		{
-			String errMsg = "not support trantype"+urlbean.getTransType();
-			logger.error("ERROR:"+errMsg);
-			throw new IllegalArgumentException(errMsg);
-		}
-
-		String className = targetPkg+"."+urlbean.getModuleName()+"."+urlbean.getClazzName()+"Trans";
+		String className =  mapper.getModuleName()+mapper.getClazzName()+"Trans";
 		return Class.forName(className);
 	}
 
-	public Class<?>[] parseTargetParas( String transType, Method method )
+	public Class<?>[] parseTargetParas( Method method )
 	{
 		//商户版本的在出参和入参中.
-		if ( !kcommonNS.equals(transType) && !kcommonSS.equals(transType) )
+		Class<?>[] allParas = method.getParameterTypes();
+		if ( allParas.length >= 2 )
 		{
-			Class<?>[] allParas = method.getParameterTypes();
-			if ( allParas.length > 1 )
-			{
-				Class<?>[] retParas = new Class<?>[allParas.length-1];
-				System.arraycopy(allParas, 1, retParas, 0, allParas.length-1);
-				return retParas;
-			}
+			Class<?>[] retParas = new Class<?>[allParas.length-1];
+			System.arraycopy(allParas, 1, retParas, 0, allParas.length-1);
+			return retParas;
 		}
-		else
+
+		/*		MethodDefiner mtdef = method.getAnnotation(MethodDefiner.class);
+		if ( mtdef != null )
 		{
-			MethodDefiner mtdef = method.getAnnotation(MethodDefiner.class);
-			if ( mtdef != null )
+			if ( mtdef.api().length == 0 )
 			{
-				if ( mtdef.api().length == 0 )
-				{
-					return null;
-				}
-				
-				return mtdef.api();
+				return null;
 			}
-		}
+
+			return mtdef.api();
+		}*/
 
 		//无参数.
 		return null;
@@ -122,12 +96,12 @@ public class TargetSearcher
 	 * @throws NoSuchMethodException 
 	 * @throws ClassNotFoundException 
 	 */
-	public Method findTargetMethod( UrlParseBean urlbean ) throws NoSuchMethodException, ClassNotFoundException
+	public Method findTargetMethod( URLMapper mapper ) throws NoSuchMethodException, ClassNotFoundException
 	{
-		Class<?> targetClz = findTargetClass(urlbean);
+		Class<?> targetClz = findTargetClass(mapper);
 		Method[] methods = targetClz.getMethods();
 		
-		String methodName = urlbean.getMethodName();
+		String methodName = mapper.getMethodName();
 		for ( Method method : methods )
 		{
 			if ( methodName.equals(method.getName()))

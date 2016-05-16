@@ -6,17 +6,22 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import plat.frame.app.impl.UrlParseBean;
+import plat.frame.app.impl.URLMapper;
+import plat.frame.component.QConfig;
 
 @Controller
 public class AppEntry extends GeneralCallProxy
 {
 	private Logger logger = Logger.getLogger(AppEntry.class);
+	
+	@Autowired
+	private QConfig qconf;
 	
 	/**
 	 * 根据模块/类/方法名字进行调用.
@@ -28,22 +33,16 @@ public class AppEntry extends GeneralCallProxy
 	 * @param mtd
 	 * @return
 	 */
-	@RequestMapping(value="/{transType}/{module}/{clazz}/{method}.mto" /*,method=RequestMethod.POST*/)
+	@RequestMapping(method=RequestMethod.POST)
 //	@ResponseBody
-	public void callTargetMethod( HttpServletRequest request, HttpServletResponse response,
-						@PathVariable String transType, @PathVariable String module,
-						@PathVariable String clazz, @PathVariable String method )
+	public void appProxy( HttpServletRequest request, HttpServletResponse response )
 	{
-		UrlParseBean urlbean = new UrlParseBean();
-		urlbean.setTransType(transType);
-		urlbean.setModuleName(module);
-		urlbean.setClazzName(clazz);
-		urlbean.setMethodName(method);
-		
+		URLMapper urlMapper = new URLMapper(qconf.getAppName(), qconf.getTransPrefix());
+		urlMapper.doParse(request.getRequestURI());
 		try
 		{
 			logger.info("__APP_RECV");
-			String rspMsg = (String)callTargetMethod( request, urlbean );
+			String rspMsg = (String)callTargetMethod( request, urlMapper );
 			OutputStream os = response.getOutputStream();
 			response.setContentType("text/html");
 			os.write(rspMsg.getBytes("utf-8"));
@@ -57,10 +56,14 @@ public class AppEntry extends GeneralCallProxy
 //		return "fail";
 	}
 	
-	@RequestMapping(value="/tr0/letsStart.do")
+	/**
+	 * test, get rid of it when on release.
+	 * @return
+	 */
+	@RequestMapping(value="/helloq.gmt")
 	@ResponseBody
 	public String letsStart()
 	{
-		return "Let's Start Now!";
+		return "Let's do the left!";
 	}
 }

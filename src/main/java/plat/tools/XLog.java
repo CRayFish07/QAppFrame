@@ -1,4 +1,4 @@
-package plat.config.beans;
+package plat.tools;
 
 public class XLog {
 	public static void log( String fmt, Object...args )

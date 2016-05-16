@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import plat.config.beans.XLog;
+import plat.tools.XLog;
 
 @Controller
 public class MVCChecker

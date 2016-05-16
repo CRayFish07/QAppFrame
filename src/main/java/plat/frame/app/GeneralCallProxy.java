@@ -28,7 +28,7 @@ import plat.frame.app.define.MessageType;
 import plat.frame.app.impl.CTSessionFactory;
 import plat.frame.app.impl.TargetSearcher;
 import plat.frame.app.impl.TransContext;
-import plat.frame.app.impl.UrlParseBean;
+import plat.frame.app.impl.URLMapper;
 import plat.frame.app.msg.ReqMessageHead;
 import plat.frame.app.msg.RspMessageHead;
 import plat.security.enc.AESTools;
@@ -63,7 +63,7 @@ public class GeneralCallProxy extends CallProxy
 		logger.info("__GeneralCallProxy init succeed.");
 	}
 
-	protected Object callTargetMethod( HttpServletRequest request, UrlParseBean urlbean )
+	protected Object callTargetMethod( HttpServletRequest request, URLMapper mapper )
 	{
 		//TIME0
 		long time0 = new Date().getTime();
@@ -72,10 +72,10 @@ public class GeneralCallProxy extends CallProxy
 		try
 		{
 			//查找类名.
-			Class<?> targetClz = tsearcher.findTargetClass(urlbean);
+			Class<?> targetClz = tsearcher.findTargetClass(mapper);
 
 			//查找URL对应的方法,查找方法,采用同名策略.
-			Method targetMethod = tsearcher.findTargetMethod(targetClz,urlbean.getMethodName());
+			Method targetMethod = tsearcher.findTargetMethod(targetClz,mapper.getMethodName());
 
 			//获得服务接收和返回的报文类型信息,没有数据.
 			MessageType messageType = initMessageType( targetClz, targetMethod );
@@ -222,14 +222,10 @@ public class GeneralCallProxy extends CallProxy
 	 */
 	private void parseMessage( HttpServletRequest request, TransContext context, MessageType msgType ) throws Exception
 	{
-		//查看是否强制明文,该功能用于测试.
-		msgType.forcePlain = PropertiesReader.getBoolean("forcePlain");
-		
 		//获得请求报文.
 		String indata = getInputString( request, "utf-8" );
 		if ( StringUtil.isEmpty(indata) )
 		{
-			logger.error("ERROR:请求报文为空.");
 			throw new AppException(KResponse.INPUT_ERROR, "请求报文为空." );
 		}
 
@@ -326,13 +322,14 @@ public class GeneralCallProxy extends CallProxy
 		//TODEL
 		logger.info(String.format("REQ_MSG_ENC:LEN[%d][%s]", inData.length(), inData ));
 
+		//start with E000/P000/
 		if ( StringUtil.isEmpty(inData) || inData.length() < 4 )
 		{
 			throw new AppException(KResponse.INPUT_ERROR, "报文为空或者格式不符合要求" );
 		}
 
 		//报文版本类型.
-		String msgVer = inData.substring(0, 4);		//HH01 FFFF
+		String msgVer = inData.substring(0, 4);		//E000 FFFF
 		messageType.setMsgFmt(msgVer);
 
 		//报文实体.
@@ -507,6 +504,9 @@ public class GeneralCallProxy extends CallProxy
 			msgType.sessType = cfgAnnot.session()==SESS_TYPE.DEFAULT?msgType.sessType:cfgAnnot.session();
 			msgType.defendType = cfgAnnot.defend()==DEFEND_TYPE.DEFAULT?msgType.defendType:cfgAnnot.defend();
 		}
+		
+		//force plain if debug.
+		msgType.forcePlain = PropertiesReader.getBoolean("DEBUG.forcePlain");
 
 		//进行方法合法性校验,并获取返回参数.
 		parseParas( targetMethod, msgType );

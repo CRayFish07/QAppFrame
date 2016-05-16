@@ -8,6 +8,7 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +21,8 @@ import plat.frame.api.annonation.APIDefiner;
 import plat.frame.api.annonation.MethodDefiner;
 import plat.frame.app.impl.BeanParser;
 import plat.frame.app.impl.TargetSearcher;
-import plat.frame.app.impl.UrlParseBean;
+import plat.frame.app.impl.URLMapper;
+import plat.frame.component.QConfig;
 import plat.tools.BaseCoder;
 import plat.tools.JsonCoder;
 import plat.tools.PermKeeper;
@@ -35,6 +37,9 @@ public class APIEntry extends BeanParser
 	private static final String exampleMethod = "showExample";				//实例方法名字.
 	
 	private static final String kHOSTURL = "HOSTURL";
+	
+	@Autowired
+	private QConfig qconf;
 	
 	@RequestMapping( value="/ns0/test/test.api" )
 	@ResponseBody
@@ -121,19 +126,13 @@ public class APIEntry extends BeanParser
 	 * @return
 	 * @throws UnsupportedEncodingException 
 	 */
-	@RequestMapping( value="/{transtype}/{module}/{clazz}/{method}.api" /*,method=RequestMethod.POST*/ )
+	@RequestMapping( value="*.api" /*,method=RequestMethod.POST*/ )
 //	@ResponseBody
-	public String callAPIInfos( HttpServletRequest request,
-				@PathVariable String transtype, @PathVariable String module,
-				@PathVariable String clazz, @PathVariable String method ) throws UnsupportedEncodingException
+	public String callAPIInfos( HttpServletRequest request )
 	{
-		UrlParseBean urlbean = new UrlParseBean();
-		urlbean.setTransType(transtype);
-		urlbean.setModuleName(module);
-		urlbean.setClazzName(clazz);
-		urlbean.setMethodName(method);
-		
-		if( !callAPIMain(request,urlbean,method) )
+		URLMapper urlMapper = new URLMapper(qconf.getAppName(), qconf.getTransPrefix());
+		urlMapper.doParse(request.getRequestURI());
+		if( !callAPIMain(request,urlMapper) )
 		{
 			return "fail";
 		}
@@ -151,7 +150,7 @@ public class APIEntry extends BeanParser
 	 * @param method
 	 * @return
 	 */
-	private boolean callAPIMain( HttpServletRequest request, UrlParseBean urlbean, String method )
+	private boolean callAPIMain( HttpServletRequest request, URLMapper mapper )
 	{
 		//不对生产开放.
 		if ( !PermKeeper.isTest() )
@@ -162,7 +161,7 @@ public class APIEntry extends BeanParser
 		APIEntity apiEntity = null;
 		try
 		{
-			apiEntity = convertApiEntity( urlbean );
+			apiEntity = convertApiEntity( mapper );
 		}
 		catch (ClassNotFoundException e)
 		{
@@ -199,13 +198,13 @@ public class APIEntry extends BeanParser
 	 * @throws NoSuchMethodException 
 	 * @throws ClassNotFoundException 
 	 */
-	private APIEntity convertApiEntity( UrlParseBean urlbean ) throws NoSuchMethodException, ClassNotFoundException
+	private APIEntity convertApiEntity( URLMapper mapper ) throws NoSuchMethodException, ClassNotFoundException
 	{
 		TargetSearcher tsearcher = TargetSearcher.getInstance();
 		APIEntity entity = new APIEntity();
 		
 		//获取方法描述.
-		Method targetMethod = tsearcher.findTargetMethod(urlbean);
+		Method targetMethod = tsearcher.findTargetMethod(mapper);
 		MethodDefiner mtdef = targetMethod.getAnnotation(MethodDefiner.class);
 		if ( mtdef != null )
 		{
@@ -223,7 +222,7 @@ public class APIEntry extends BeanParser
 			entity.setApiUpdates(apidef.updates());
 		}
 		
-		Class<?>[] apiClazz = tsearcher.parseTargetParas(urlbean.getTransType(), targetMethod);
+		Class<?>[] apiClazz = tsearcher.parseTargetParas(targetMethod);
 		for ( int i = 0; i < apiClazz.length; ++i )
 		{
 			Class<?> tmpClz = apiClazz[i];

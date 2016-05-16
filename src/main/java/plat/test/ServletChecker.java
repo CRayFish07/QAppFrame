@@ -15,7 +15,7 @@ import javax.servlet.http.HttpSession;
  *
  */
 @WebServlet(name="Health",urlPatterns="/hello")
-public class HealthChecker extends HttpServlet
+public class ServletChecker extends HttpServlet
 {
 	 public void doGet( HttpServletRequest request, HttpServletResponse response)
 	         throws ServletException, IOException {

@@ -6,8 +6,8 @@
   plat.api.* ：该包里面是客户端API发布的代码，这个在开发过程中，用来发布API接口给客户端人员。
   plat.app.* ：该包是App服务的主框架代码。
 # 示例
-  [GET]http://localhost:8080/QAppFrame/api/list/APIExample.api
-  [POST]http://localhost:8080/QAppFrame/worldtree/ulogin/UserLogin/login.gmt
-    [body-content] FF01{"head":{},"body"{}}
+  * [GET]http://localhost:8080/QAppFrame/api/list/APIExample.api
+  * [POST]http://localhost:8080/QAppFrame/worldtree/ulogin/UserLogin/login.gmt
+    **[body-content] FF01{"head":{},"body"{}}
   
   

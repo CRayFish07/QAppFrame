@@ -11,95 +11,54 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import plat.frame.api.APIBeanInfo;
 import plat.frame.api.FieldEntity;
 import plat.frame.app.impl.BeanParser;
+import plat.tools.PermKeeper;
 import plat.tools.StringUtil;
 
 @Controller
 public class APIDownload extends BeanParser
 {
-	private String pkgName = "package com.yitong.mbank.controller.api;";
+	private String pkgName = "package XXXX;";
 	
 	Logger logger = Logger.getLogger(this.getClass());
 	
 	/***
-	 * 生成iOS bean
+	 * 为客户端生成bean代码
 	 * @param request
 	 * @param response
 	 * @param filename
 	 * @throws UnsupportedEncodingException
 	 */
-	@RequestMapping( value="/api0/autocode/{filename}.h" /*,method=RequestMethod.POST*/ )
+	@RequestMapping( value="/api/download/{ostype}/{filename}",method=RequestMethod.GET )
 	public void autoCodeApple( HttpServletRequest request, HttpServletResponse response,
-								@PathVariable String filename ) throws UnsupportedEncodingException
+								@PathVariable String ostype, @PathVariable String filename,
+								@RequestParam  String fullpath ) throws UnsupportedEncodingException
 	{
 		//不对生产开放.
-/*		if ( !PermKeeper.isTest() )
+		if ( !PermKeeper.isTest() )
 		{
 			return;
-		}*/
-
-		logger.info("__INFO:autoCodeApple");
-
-		//获取全路径 .
-		String fullpath = request.getParameter("fullpath");
-		if ( StringUtil.isEmpty(fullpath) )
-		{
-			return ;
 		}
+
+		logger.info(String.format("__DOWNLOAD/%s/%s",ostype,filename));
 
 		response.setContentType("application/octet-stream");
 		//		response.setContentType("text/html");
-		String codefile = autoAppleCodeFile( fullpath );
+		String codefile = "";
+		if("ios".equals(ostype))
+		{
+			codefile = autoAppleCodeFile( fullpath );
+		}
+		else
+		{
+			codefile = autoJavaCodeFile( fullpath );
+		}
 
-		OutputStream ostream;
-		try
-		{
-			ostream = response.getOutputStream();
-			ostream.write(codefile.getBytes("utf-8"));
-			ostream.flush();
-			ostream.close();
-		}
-		catch (IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	/**
-	 * 生成Java bean代码.
-	 * @param request
-	 * @param response
-	 * @param filename
-	 * @throws UnsupportedEncodingException
-	 */
-	//http://localhost:8080/mbank/autocode/ReqUserInfo.java?pkg=com.mbank.model.req
-	@RequestMapping( value="/api0/autocode/{filename}.java" /*,method=RequestMethod.POST*/ )
-	public void autoCodeJava( HttpServletRequest request, HttpServletResponse response,
-									@PathVariable String filename ) throws UnsupportedEncodingException
-	{
-		//不对生产开放.
-/*		if ( !PermKeeper.isTest() )
-		{
-			return;
-		}*/
-		
-		logger.info("__INFO:autoCodeJava");
-		
-		//获取全路径 .
-		String fullpath = request.getParameter("fullpath");
-		if ( StringUtil.isEmpty(fullpath) )
-		{
-			return ;
-		}
-		
-		response.setContentType("application/octet-stream");
-//		response.setContentType("text/html");
-		String codefile = autoJavaCodeFile( fullpath );
-		
 		OutputStream ostream;
 		try
 		{

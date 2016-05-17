@@ -13,6 +13,6 @@ public class KBankApp
 	
 	/***** 以下是qconf中配置的key >>>> ****/
 	public static final String duplicateMessageDefend = "duplicateMessageDefend";		//报文重复发送检测开关.
-	public static final String isTest = "isTest";										//是否是测试环境.
+	public static final String isTest = "DEBUG.isTest";										//是否是测试环境.
 	/******** <<<<< *************/
 }

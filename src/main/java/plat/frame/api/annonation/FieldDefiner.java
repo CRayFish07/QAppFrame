@@ -12,11 +12,12 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
+//@Retention(RetentionPolicy.SOURCE)  //生产的时候改成这个.
 public @interface FieldDefiner
 {
 	public String name();						//中文名称
 	public boolean required()	default false;	//是否必输
 	public String enums()		default "" ;	//枚举值
 	public String desc()		default "";		//描述
-	public Class<?>[] classT() default {};		//用于泛型指定.
+	public Class<?>[] classT() default {};		//用于泛型指定,如List<CardInfo> carlist;则需要标注CardInfo.class
 }

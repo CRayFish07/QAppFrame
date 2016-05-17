@@ -14,6 +14,12 @@ public class QConfig
 	
 	@Value("${RSAConfigPath}")
 	private String RSAConfigPath;
+	
+	@Value("${DEBUG.apiPackage:plat.frame.api.release}")
+	private String apiPackage;
+	
+	@Value("${DEBUG.apiHostURL:http://localhost:8080/QAppFrame}")
+	private String apiHostURL;
 
 	public String getTransPrefix() {
 		return transPrefix;
@@ -38,5 +44,20 @@ public class QConfig
 	public void setRSAConfigPath(String rSAConfigPath) {
 		RSAConfigPath = rSAConfigPath;
 	}
-	
+
+	public String getApiPackage() {
+		return apiPackage;
+	}
+
+	public void setApiPackage(String apiPackage) {
+		this.apiPackage = apiPackage;
+	}
+
+	public String getApiHostURL() {
+		return apiHostURL;
+	}
+
+	public void setApiHostURL(String apiHostURL) {
+		this.apiHostURL = apiHostURL;
+	}
 }

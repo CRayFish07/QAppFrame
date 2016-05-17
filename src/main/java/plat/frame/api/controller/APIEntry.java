@@ -1,10 +1,10 @@
 package plat.frame.api.controller;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import plat.frame.api.APIEntity;
@@ -23,29 +23,23 @@ import plat.frame.app.impl.BeanParser;
 import plat.frame.app.impl.TargetSearcher;
 import plat.frame.app.impl.URLMapper;
 import plat.frame.component.QConfig;
-import plat.tools.BaseCoder;
 import plat.tools.JsonCoder;
 import plat.tools.PermKeeper;
-import plat.tools.PropertiesReader;
 import plat.tools.StringUtil;
 
 @Controller
 public class APIEntry extends BeanParser
 {
-	private static final String hostUrlDef = "http://localhost:8080/directBank";
-	private static final String releasePkg = "com.csbank.api.release.";		//接口发布包.
-	private static final String exampleMethod = "showExample";				//实例方法名字.
-	
-	private static final String kHOSTURL = "HOSTURL";
+	private static final String exampleMethod = "showExamqle";				//实例方法名字.
 	
 	@Autowired
 	private QConfig qconf;
 	
-	@RequestMapping( value="/ns0/test/test.api" )
+	@RequestMapping( value="/api/list/test.api" )
 	@ResponseBody
-	public String testapi( HttpServletRequest request, @RequestParam String module )
+	public String testapi( HttpServletRequest request )
 	{
-		return "SUCCESS";
+		return "api succeed.";
 	}
 
 	/**
@@ -53,39 +47,34 @@ public class APIEntry extends BeanParser
 	 * @param request
 	 * @param module
 	 * @return
+	 * @throws NoSuchFieldException 
 	 */
-	@RequestMapping( value="/ns0/api/list.do" )
-	public String queryAllApisByTransModel( HttpServletRequest request, @RequestParam String module )
+	@RequestMapping( value="/api/list/{module}.api",method=RequestMethod.GET)
+	public String queryAllApiInfoByTransModel( HttpServletRequest request, @PathVariable String module ) throws NoSuchFieldException
 	{
-/*		//不对生产开放.
-		if ( !PermKeeper.isTest() )
-		{
-			return "error0";
-		}*/
-		
-		if ( module == null || module.trim().length() == 0 )
-		{
-			request.setAttribute("errMsg", "module为空.");
-			return "error0";
-		}
-		
-		String hostUrl = PropertiesReader.getString(kHOSTURL);
-		if ( StringUtil.isEmpty(hostUrl))
-		{
-			logger.info("INFO:无法获取服务器地址,采用默认地址.");
-			hostUrl = hostUrlDef;
-		}
-		
-		String fullName = releasePkg+module;
+		String fullName = qconf.getApiPackage()+"."+module;
 		try
 		{
 			Class<?> apiClass = Class.forName(fullName);
-			Method mtd = apiClass.getMethod("queryAPIs", null);
 			Object obj = apiClass.newInstance();
-			List<APIReleaseInfo> urlList = (List<APIReleaseInfo>) mtd.invoke(obj, null);
-			request.setAttribute("apiList", urlList);
-			request.setAttribute("hostUrl", hostUrl);
-			return "/page/allAPIs";
+			
+			//模块名字.
+			Field fdModule = apiClass.getDeclaredField("moduleName");
+			String moduleName = (String)fdModule.get(obj);
+			
+			//API信息
+			Field fdApis = apiClass.getDeclaredField("apiInfos");
+			String[] apiInfos = (String[])fdApis.get(obj);
+			
+			//转换方法.
+			Method mtdList = apiClass.getMethod("queryAllApiInfos",String[].class);
+			List<APIReleaseInfo> apiList = (List<APIReleaseInfo>) mtdList.invoke(obj,new Object[]{apiInfos});
+			
+			request.setAttribute("moduleName",moduleName);
+			request.setAttribute("apiList", apiList);
+			request.setAttribute("hostUrl", qconf.getApiHostURL());
+			
+			return "/api/allAPIs";
 		}
 		catch (ClassNotFoundException e)
 		{
@@ -113,33 +102,26 @@ public class APIEntry extends BeanParser
 
 		return "fail";
 	}
-	
-	/**
-	 * tr0 - 有会话检查
-	 * 根据模块/类/方法名字进行调用.
-	 * 模块只能写在包basepkg中.
-	 * @param request
-	 * @param response
-	 * @param model
-	 * @param clz
-	 * @param mtd
-	 * @return
-	 * @throws UnsupportedEncodingException 
+
+	/******
+	 * 显示某个接口的信息.
 	 */
-	@RequestMapping( value="*.api" /*,method=RequestMethod.POST*/ )
+	@RequestMapping(value="/**/*.api",method=RequestMethod.GET)
 //	@ResponseBody
-	public String callAPIInfos( HttpServletRequest request )
-	{
+	public String querySpecApiInfo( HttpServletRequest request )
+	{	
+		logger.info("__APP_RECV_api");
+		
+		//解析URL
 		URLMapper urlMapper = new URLMapper(qconf.getAppName(), qconf.getTransPrefix());
 		urlMapper.doParse(request.getRequestURI());
+
 		if( !callAPIMain(request,urlMapper) )
 		{
 			return "fail";
 		}
 		
-		logger.info("__RET_SUCCESS.");
-		
-		return "/page/APITable";
+		return "/api/APITable";
 	}
 	
 	/**
@@ -177,15 +159,8 @@ public class APIEntry extends BeanParser
 		//返回实体给JSP页面.
 		request.setAttribute("apiEntity", apiEntity);
 		
-		String hostUrl = PropertiesReader.getString(kHOSTURL);
-		if ( StringUtil.isEmpty(hostUrl))
-		{
-			logger.info("INFO:无法获取服务器地址,采用默认地址.");
-			hostUrl = hostUrlDef;
-		}
-		
 		//返回主机地址
-		request.setAttribute("hostURL", hostUrl );
+		request.setAttribute("hostURL", qconf.getApiHostURL() );
 		
 		return true;
 	}

@@ -8,7 +8,7 @@ import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
-import plat.config.springmvc.DispatcherConfig;
+import plat.config.springmvc.ConfigDispatcher;
 import plat.tools.XLog;
 
 public class MyWebAppInitializer implements WebApplicationInitializer
@@ -20,7 +20,7 @@ public class MyWebAppInitializer implements WebApplicationInitializer
         // Create the 'root' Spring application context
         AnnotationConfigWebApplicationContext rootContext =
           new AnnotationConfigWebApplicationContext();
-        rootContext.register(SpringConfig.class);			//configure the Spring beans here.
+        rootContext.register(ConfigSpring.class);			//configure the Spring beans here.
 
         // Manage the lifecycle of the root application context
         container.addListener(new ContextLoaderListener(rootContext));
@@ -29,12 +29,15 @@ public class MyWebAppInitializer implements WebApplicationInitializer
         //including the basepgk-scan and so on.
         AnnotationConfigWebApplicationContext dispatcherContext =
           new AnnotationConfigWebApplicationContext();
-        dispatcherContext.register(DispatcherConfig.class);
+        dispatcherContext.register(ConfigDispatcher.class);
 
         // Register and map the dispatcher servlet
-        ServletRegistration.Dynamic dispatcher =
-          container.addServlet( "dispatcher", new DispatcherServlet(dispatcherContext));
-        dispatcher.setLoadOnStartup(1);
-        dispatcher.addMapping("*.gmt");	//go transaction.
+        ServletRegistration.Dynamic dispatcherApp =
+          container.addServlet( "AppDispatcher", new DispatcherServlet(dispatcherContext));
+        dispatcherApp.setLoadOnStartup(1);
+        dispatcherApp.addMapping("*.gmt");	//go transaction.
+        dispatcherApp.addMapping("*.api");
+        dispatcherApp.addMapping("*.java");
+        dispatcherApp.addMapping("*.h");
       }
 }

@@ -5,7 +5,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import plat.bean.example.CustomerX;
-import plat.config.spring.SpringConfig;
+import plat.config.spring.ConfigSpring;
 import plat.frame.component.QConfig;
 import plat.tools.XLog;
 
@@ -21,7 +21,7 @@ public class SpringChecker
 	
 	public static void main(String[] args)
 	{
-		ApplicationContext ctx = new AnnotationConfigApplicationContext(SpringConfig.class);
+		ApplicationContext ctx = new AnnotationConfigApplicationContext(ConfigSpring.class);
 		logger.info("LOG4J worked.");
 		
 		/**

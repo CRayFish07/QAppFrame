@@ -12,22 +12,13 @@ import plat.tools.JsonCoder;
  * @author zhangcq
  *
  */
-public abstract class APIRelease
+public class APIRelease
 {
-	public abstract List<APIReleaseInfo> queryAPIs();
+	protected Logger logger = Logger.getLogger(this.getClass());
 	
-	private Logger logger = Logger.getLogger(APIRelease.class);
-	
-	protected List<APIReleaseInfo> queryAllAPIs( String urls[] )
+	public List<APIReleaseInfo> queryAllApiInfos( String urls[] )
 	{
 		 List<APIReleaseInfo> list = new  ArrayList<APIReleaseInfo>();
-		 
-		 //无法获取主机地址.
-/*		 String hosturl = getHostUrl();
-		 if ( hosturl == null || hosturl.trim().length() == 0 )
-		 {
-			 return null;
-		 }*/
 		 
 		 if ( urls != null && urls.length != 0 )
 		 {
@@ -59,9 +50,4 @@ public abstract class APIRelease
 		 logger.info("__JSON="+JsonCoder.toJsonString(list));
 		 return list;
 	}
-	
-/*	private String getHostUrl( )
-	{
-		 return Properties.getString(KAPI.HOSTURL);
-	}*/
 }

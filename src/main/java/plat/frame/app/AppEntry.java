@@ -24,6 +24,17 @@ public class AppEntry extends GeneralCallProxy
 	private QConfig qconf;
 	
 	/**
+	 * test, get rid of it when on release.
+	 * @return
+	 */
+	@RequestMapping(value="/helloq.gmt",method=RequestMethod.GET)
+	@ResponseBody
+	public String letsStart()
+	{
+		return "Let's do the left!";
+	}
+	
+	/**
 	 * 根据模块/类/方法名字进行调用.
 	 * 模块只能写在包com.mbank.busi.中.
 	 * @param request
@@ -33,37 +44,31 @@ public class AppEntry extends GeneralCallProxy
 	 * @param mtd
 	 * @return
 	 */
-	@RequestMapping(method=RequestMethod.POST)
+	@RequestMapping(value="/**/*.gmt",method=RequestMethod.POST)
 //	@ResponseBody
 	public void appProxy( HttpServletRequest request, HttpServletResponse response )
 	{
+		logger.info("__APP_RECV_gmt");
+
+		//URL解析
 		URLMapper urlMapper = new URLMapper(qconf.getAppName(), qconf.getTransPrefix());
 		urlMapper.doParse(request.getRequestURI());
+
 		try
 		{
-			logger.info("__APP_RECV");
 			String rspMsg = (String)callTargetMethod( request, urlMapper );
 			OutputStream os = response.getOutputStream();
 			response.setContentType("text/html");
 			os.write(rspMsg.getBytes("utf-8"));
 			os.flush();
 			os.close();
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 //		return "fail";
-	}
-	
-	/**
-	 * test, get rid of it when on release.
-	 * @return
-	 */
-	@RequestMapping(value="/helloq.gmt")
-	@ResponseBody
-	public String letsStart()
-	{
-		return "Let's do the left!";
 	}
 }

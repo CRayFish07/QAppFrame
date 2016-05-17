@@ -51,8 +51,6 @@ public class GeneralCallProxy extends CallProxy
 
 	private Map catcheMap = new ConcurrentHashMap<String, Object>();	//换成class和method.
 
-	private ApplicationContext springAppContext;
-
 	public GeneralCallProxy()
 	{
 		init();
@@ -117,7 +115,8 @@ public class GeneralCallProxy extends CallProxy
 				list.add(context.getRspBody());
 			}
 
-			Object obj = AppContextHolder.getContext().getBean(targetClz);
+//			Object obj = AppContextHolder.getContext().getBean(targetClz);
+			Object obj = targetClz.newInstance();
 			if ( obj == null )
 			{
 				new AppException(KResponse.FAIL, "目标对象为空."+targetClz.toString());

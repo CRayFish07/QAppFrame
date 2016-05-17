@@ -1,5 +1,7 @@
 package plat.frame.app.impl;
 
+import plat.tools.XLog;
+
 public class URLMapper
 {
 	public static String urlTail = "gmt";
@@ -52,6 +54,7 @@ public class URLMapper
 	 */
 	public void doParse( String uri )
 	{
+		XLog.log("URI=%s", uri);
 		//ignore the app_name if have one.
 		int startIndex = 1 + (appName.length()==0?0:appName.length()+1);
 		String[] parts = uri.substring(startIndex, uri.length()-4).split("/");
@@ -63,9 +66,11 @@ public class URLMapper
 		sbuffer.append(transPrefix).append(".");
 		for ( int i = 0; i < parts.length-2;++i )
 		{
+			XLog.log("parts[%d][%s]", i,parts[i]);
 			sbuffer.append(parts[i]).append(".");
 		}
 		
 		moduleName = sbuffer.toString();
+		XLog.log("moduleName=%s", moduleName);
 	}
 }

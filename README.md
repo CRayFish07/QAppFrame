@@ -18,6 +18,6 @@
  * `GET` http://localhost:8080/QAppFrame/api/list/APIExample.api
 * 交易请求和返回报文示例
  * `POST` http://localhost:8080/QAppFrame/worldtree/ulogin/UserLogin/login.gmt
- * `BODY-CONTENT` FF01{"head":{},"body":{}}
+ * `BODY-CONTENT` FF01{"head":{},"body":{"mobileNo":"18621596661","idType":"00"}}
   
   

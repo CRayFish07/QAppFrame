@@ -14,11 +14,11 @@ import plat.frame.api.APIReleaseInfo;
  */
 public class APIExample extends APIRelease
 {
-	public String moduleName = "理财模块(接口示例)";
+	public String moduleName = "登录模块(接口示例)";
 	
 	//此URL对格式有严格要求,必须两个一起即:接口简述+地址URL
 	public String[] apiInfos = {
-			"登录模块",						//模块信息介绍
+			"登录模块",										//模块信息介绍
 			"worldtree/ulogin/UserLogin/login.api",			//首页地址.
 			"获取客户信息模块",
 			"worldtree/ulogin/UserLogin/login.api"

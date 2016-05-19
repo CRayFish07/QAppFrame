@@ -22,6 +22,9 @@
  * 本地测试：`POST` http://localhost:8080/QAppFrame/worldtree/ulogin/UserLogin/login.gmt
  * 样例展示：`POST` http://119.29.198.112:8080/QAppFrame/worldtree/ulogin/UserLogin/login.gmt
  * `BODY-CONTENT` FF01{"head":{},"body":{"mobileNo":"18621596661","idType":"00"}}
+
+##发布TIPS
+* 建议将`FieldDefiner.class`和`APIDefiner.class`注解改成源码级别。
  
 ##待新增的功能
 * 对映射做缓存。

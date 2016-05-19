@@ -1,9 +1,6 @@
 package plat.frame.api.release;
 
-import java.util.List;
-
 import plat.frame.api.APIRelease;
-import plat.frame.api.APIReleaseInfo;
 
 /**
  * 此类用于API接口发布类名即模块分组名.

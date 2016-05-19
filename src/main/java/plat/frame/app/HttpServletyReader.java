@@ -6,49 +6,35 @@ import java.lang.reflect.Method;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import plat.constant.KResponse;
+import plat.frame.api.QBaseBean;
+import plat.frame.api.annonation.DEFEND_TYPE;
+import plat.frame.api.annonation.ENC_TYPE;
+import plat.frame.api.annonation.SESS_TYPE;
+import plat.frame.api.annonation.TransConfig;
+import plat.frame.app.define.MessageType;
+import plat.frame.app.impl.TransContext;
+import plat.frame.app.msg.ReqMessageHead;
+import plat.tools.PropertiesReader;
+import plat.tools.StringUtil;
 import plat.tools.net.HttpServletProfessional;
 
-public class CallProxy
+public class HttpServletyReader
 {
+	private Logger logger = Logger.getLogger(HttpServletyReader.class);
+	
 	//报文读取工具.
 	private HttpServletProfessional httptool = null;
 	
 	//读取报文的大小 1M
 	private int maxpkg = 1024*1024;
-	
-	public Object callMethod( String tarClazz, String tarMethod, Class[] args )
-	{
-		try
-		{
-			Class<?> clz = Class.forName(tarClazz);
-			Method method = clz.getMethod( tarMethod, args );
-			return method.invoke( clz.newInstance(), args );
-		}
-		catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return null;
-	}
 	
 	/**
 	 * 
@@ -72,6 +58,7 @@ public class CallProxy
 	
 	protected byte[] getInputStream( HttpServletRequest request ) throws IOException, InterruptedException
 	{
+		//没同步.
 		if ( httptool == null )
 		{
 			httptool = HttpServletProfessional.getInstance().setMaxlen(maxpkg);

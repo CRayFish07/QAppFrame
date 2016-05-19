@@ -45,13 +45,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class GeneralCallProxy extends CallProxy
+public class HttpInvokeProxy extends HttpServletyReader
 {
-	private Logger logger = Logger.getLogger(GeneralCallProxy.class);
+	private Logger logger = Logger.getLogger(HttpInvokeProxy.class);
 
 	private Map catcheMap = new ConcurrentHashMap<String, Object>();	//换成class和method.
 
-	public GeneralCallProxy()
+	public HttpInvokeProxy()
 	{
 		init();
 	}
@@ -83,12 +83,12 @@ public class GeneralCallProxy extends CallProxy
 
 			long time2 = new Date().getTime();
 			logger.info("__TIME_COUNT:INTPUT_READ:"+(time2 - time1));
-			
+
 			//创建会话CTSessionFactory
 			ICTSession session = new CTSessionFactory()
-										.setRequset(request)
-										.setSessType(SESS_TYPE.HTTP_SESS)
-										.createSession();
+			.setRequset(request)
+			.setSessType(SESS_TYPE.HTTP_SESS)
+			.createSession();
 
 			//创建应用上下文.
 			TransContext context = new TransContext().setSession(session);
@@ -115,7 +115,7 @@ public class GeneralCallProxy extends CallProxy
 				list.add(context.getRspBody());
 			}
 
-//			Object obj = AppContextHolder.getContext().getBean(targetClz);
+			//			Object obj = AppContextHolder.getContext().getBean(targetClz);
 			Object obj = targetClz.newInstance();
 			if ( obj == null )
 			{
@@ -157,58 +157,10 @@ public class GeneralCallProxy extends CallProxy
 
 		//		return "fail";
 	}
-	
+
 	private String getTraceInfo( HttpServletRequest request )
 	{
 		return "";
-	}
-
-	/**
-	 * 组装错误报文.
-	 * @param appEx
-	 * @return
-	 */
-	private String packErrorResponse( AppException appEx )
-	{
-		return packErrorResponse(appEx.getErrCode(),appEx.getErrInfo());
-	}
-
-	private String packErrorResponse( String errCode, String errMsg )
-	{
-		String mark = "";
-		if ( PermKeeper.isTest() )
-		{
-			mark = RandomUtil.randomInt(7)+"_";
-			logger.info("__ERRMARK:"+mark+errMsg);
-		}
-
-		RspMessageHead errHead = new RspMessageHead();
-		errHead.setRetCode(errCode);
-		errHead.setRetMsg(mark+errMsg);
-		
-		Map rspMap = new HashMap<String,Object>();
-		rspMap.put("head", errHead );
-		rspMap.put("body", new HashMap() );
-
-		return "FFFF"+JsonCoder.toJsonString(rspMap);
-	}
-
-	/**
-	 * 正常组包
-	 * @param context
-	 * @param msgType
-	 * @return
-	 * @throws Exception 
-	 */
-	private String packResponse( TransContext context, MessageType msgType ) throws Exception
-	{
-		Map rspMap = new HashMap<String,Object>();
-		rspMap.put("head", context.getRspHead());
-		rspMap.put("body", context.getRspBody()==null?new HashMap():context.getRspBody());
-
-		String retMessage = msgType.getMsgFmt()+encryptMessage( context, msgType, new Gson().toJson(rspMap) );
-
-		return retMessage;
 	}
 
 	/**
@@ -219,7 +171,7 @@ public class GeneralCallProxy extends CallProxy
 	 * @return
 	 * @throws Exception 
 	 */
-	private void parseMessage( HttpServletRequest request, TransContext context, MessageType msgType ) throws Exception
+	protected void parseMessage( HttpServletRequest request, TransContext context, MessageType msgType ) throws Exception
 	{
 		//获得请求报文.
 		String indata = getInputString( request, "utf-8" );
@@ -266,6 +218,113 @@ public class GeneralCallProxy extends CallProxy
 		}
 	}
 
+	/**
+	 * 进行参数检查和方法分析.
+	 * 这里需要考虑到:有(无)请求报文体,有(无)响应报文体共四种情况.
+	 * 所以采用参数形式.doTrans( context, reqBody, rspBody )的形式,简单明了.
+	 * @param method
+	 * @param msgType
+	 * @throws AppException 
+	 */
+	private void parseParas( Method method, MessageType msgType ) throws AppException
+	{
+		Class<?> paras[] = method.getParameterTypes();
+
+		//doTrans( context, [reqBody | rspBody] ) 
+		for ( int i = 1; i < paras.length; ++i )
+		{
+			if ( paras[i].getSimpleName().startsWith("Req") )
+			{
+				msgType.setReqBodyClz(paras[i]);
+			}
+			else
+			{
+				msgType.setRspBodyClz(paras[i]);
+			}
+		}
+	}
+
+	/**
+	 * 通过注解获取加密方式和会话类型.
+	 * @param clazz
+	 * @param method
+	 * @return
+	 * @throws AppException 
+	 */
+	protected MessageType initMessageType( Class<?> clazz, Method targetMethod ) throws AppException
+	{
+		//api use in login time in most time.
+		//https session, aes encryption by default.
+		MessageType msgType = new MessageType( ENC_TYPE.AES_SS,
+				SESS_TYPE.HTTP_SESS, DEFEND_TYPE.DEFAULT );
+
+		TransConfig cfgAnnot = targetMethod.getAnnotation(TransConfig.class);
+		if ( cfgAnnot != null )
+		{
+			msgType.encType = cfgAnnot.encrypt()==ENC_TYPE.DEFAULT?msgType.encType:cfgAnnot.encrypt();;
+			msgType.sessType = cfgAnnot.session()==SESS_TYPE.DEFAULT?msgType.sessType:cfgAnnot.session();
+			msgType.defendType = cfgAnnot.defend()==DEFEND_TYPE.DEFAULT?msgType.defendType:cfgAnnot.defend();
+		}
+
+		//force plain if debug.
+		msgType.forcePlain = PropertiesReader.getBoolean("DEBUG.forcePlain");
+
+		//进行方法合法性校验,并获取返回参数.
+		parseParas( targetMethod, msgType );
+
+		logger.info("__MESSAGE_TYPE["+msgType.toString()+"]");
+
+		return msgType;
+	}
+
+	/**
+	 * 组装错误报文.
+	 * @param appEx
+	 * @return
+	 */
+	private String packErrorResponse( AppException appEx )
+	{
+		return packErrorResponse(appEx.getErrCode(),appEx.getErrInfo());
+	}
+
+	private String packErrorResponse( String errCode, String errMsg )
+	{
+		String mark = "";
+		if ( PermKeeper.isTest() )
+		{
+			mark = RandomUtil.randomInt(7)+"_";
+			logger.info("__ERRMARK:"+mark+errMsg);
+		}
+
+		RspMessageHead errHead = new RspMessageHead();
+		errHead.setRetCode(errCode);
+		errHead.setRetMsg(mark+errMsg);
+
+		Map rspMap = new HashMap<String,Object>();
+		rspMap.put("head", errHead );
+		rspMap.put("body", new HashMap() );
+
+		return "FFFF"+JsonCoder.toJsonString(rspMap);
+	}
+
+	/**
+	 * 正常组包
+	 * @param context
+	 * @param msgType
+	 * @return
+	 * @throws Exception 
+	 */
+	private String packResponse( TransContext context, MessageType msgType ) throws Exception
+	{
+		Map rspMap = new HashMap<String,Object>();
+		rspMap.put("head", context.getRspHead());
+		rspMap.put("body", context.getRspBody()==null?new HashMap():context.getRspBody());
+
+		String retMessage = msgType.getMsgFmt()+encryptMessage( context, msgType, new Gson().toJson(rspMap) );
+
+		return retMessage;
+	}
+
 	private boolean checkInputValue( Object inObj, Class<?> clazz ) throws AppException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException
 	{
 		//只在开发联调阶段启动.
@@ -279,7 +338,7 @@ public class GeneralCallProxy extends CallProxy
 		{
 			return true;
 		}
-		
+
 		Field[] fds = clazz.getDeclaredFields();
 		for ( Field fd: fds )
 		{
@@ -480,64 +539,5 @@ public class GeneralCallProxy extends CallProxy
 		logger.info(String.format("RSP_MSG_PLAIN:LEN[%d][%s]", retdata.length(), retdata ));
 
 		return retdata;
-	}
-
-	/**
-	 * 通过注解获取加密方式和会话类型.
-	 * @param clazz
-	 * @param method
-	 * @return
-	 * @throws AppException 
-	 */
-	private MessageType initMessageType( Class<?> clazz, Method targetMethod ) throws AppException
-	{
-		//api use in login time in most time.
-		//https session, aes encryption by default.
-		MessageType msgType = new MessageType( ENC_TYPE.AES_SS,
-				SESS_TYPE.HTTP_SESS, DEFEND_TYPE.DEFAULT );
-
-		TransConfig cfgAnnot = targetMethod.getAnnotation(TransConfig.class);
-		if ( cfgAnnot != null )
-		{
-			msgType.encType = cfgAnnot.encrypt()==ENC_TYPE.DEFAULT?msgType.encType:cfgAnnot.encrypt();;
-			msgType.sessType = cfgAnnot.session()==SESS_TYPE.DEFAULT?msgType.sessType:cfgAnnot.session();
-			msgType.defendType = cfgAnnot.defend()==DEFEND_TYPE.DEFAULT?msgType.defendType:cfgAnnot.defend();
-		}
-		
-		//force plain if debug.
-		msgType.forcePlain = PropertiesReader.getBoolean("DEBUG.forcePlain");
-
-		//进行方法合法性校验,并获取返回参数.
-		parseParas( targetMethod, msgType );
-
-		logger.info("__MESSAGE_TYPE["+msgType.toString()+"]");
-
-		return msgType;
-	}
-
-	/**
-	 * 进行参数检查和方法分析.
-	 * 这里需要考虑到:有(无)请求报文体,有(无)响应报文体共四种情况.
-	 * 所以采用参数形式.doTrans( context, reqBody, rspBody )的形式,简单明了.
-	 * @param method
-	 * @param msgType
-	 * @throws AppException 
-	 */
-	private void parseParas( Method method, MessageType msgType ) throws AppException
-	{
-		Class<?> paras[] = method.getParameterTypes();
-		
-		//doTrans( context, [reqBody | rspBody] ) 
-		for ( int i = 1; i < paras.length; ++i )
-		{
-			if ( paras[i].getSimpleName().startsWith("Req") )
-			{
-				msgType.setReqBodyClz(paras[i]);
-			}
-			else
-			{
-				msgType.setRspBodyClz(paras[i]);
-			}
-		}
 	}
 }

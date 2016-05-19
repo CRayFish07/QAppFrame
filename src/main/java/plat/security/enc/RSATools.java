@@ -124,7 +124,8 @@ public class RSATools
 
 	public static void main(String args[]) throws Exception
 	{
-		String pt = "12345678901234567890";
+//		String pt = "12345678901234567890";
+		String pt = "12";
 		String endStr = RSATools.getInstance().encryptData(pt);
 		String plainText = new String( RSATools.getInstance().dencryptData(endStr), "utf-8");
 		log(plainText);

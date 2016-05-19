@@ -14,6 +14,7 @@ public class ReqUserLogin extends QBaseBean
 {
 	@FieldDefiner(name="手机号",required=true,desc="用作登录的账号")
 	private String mobileNo;
+	
 	private String userName;
 	@FieldDefiner(name="证件类型",required=true,desc="00-身份证,01-军人证")
 	private String idType;

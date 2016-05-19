@@ -16,7 +16,7 @@ import plat.frame.app.impl.URLMapper;
 import plat.frame.component.QConfig;
 
 @Controller
-public class AppEntry extends GeneralCallProxy
+public class AppEntry extends HttpInvokeProxy
 {
 	private Logger logger = Logger.getLogger(AppEntry.class);
 	

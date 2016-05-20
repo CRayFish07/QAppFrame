@@ -10,6 +10,7 @@ import java.lang.annotation.RetentionPolicy;
  *
  */
 //@Target(ElementType.TYPE)
+//@Retention(RetentionPolicy.SOURCE) // 建议生产的时候源码级别
 @Retention(RetentionPolicy.RUNTIME)
 public @interface APIDefiner
 {

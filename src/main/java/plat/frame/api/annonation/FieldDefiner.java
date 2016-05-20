@@ -11,8 +11,8 @@ import java.lang.annotation.Target;
  *
  */
 @Target(ElementType.FIELD)
+//@Retention(RetentionPolicy.SOURCE)  //建议生产的时候源码级别
 @Retention(RetentionPolicy.RUNTIME)
-//@Retention(RetentionPolicy.SOURCE)  //生产的时候改成这个.
 public @interface FieldDefiner
 {
 	public String name();						//中文名称

@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="wdt.dbase.dao.CustInfoMapper" >
+  <resultMap id="BaseResultMap" type="wdt.dbase.beans.CustInfo" >
+    <id column="acc" property="acc" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="mobile_no" property="mobileNo" jdbcType="VARCHAR" />
+    <result column="id_no" property="idNo" jdbcType="VARCHAR" />
+    <result column="id_type" property="idType" jdbcType="VARCHAR" />
+    <result column="level" property="level" jdbcType="VARCHAR" />
+    <result column="pin" property="pin" jdbcType="VARCHAR" />
+    <result column="block" property="block" jdbcType="VARCHAR" />
+    <result column="errcnt" property="errcnt" jdbcType="INTEGER" />
+    <result column="ltime" property="ltime" jdbcType="TIME" />
+    <result column="acc_state" property="accState" jdbcType="VARCHAR" />
+    <result column="state" property="state" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    acc, name, mobile_no, id_no, id_type, level, pin, block, errcnt, ltime, acc_state, 
+    state
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from bs_cust_info
+    where acc = #{acc,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from bs_cust_info
+    where acc = #{acc,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="wdt.dbase.beans.CustInfo" >
+    insert into bs_cust_info (acc, name, mobile_no, 
+      id_no, id_type, level, 
+      pin, block, errcnt, 
+      ltime, acc_state, state
+      )
+    values (#{acc,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{mobileNo,jdbcType=VARCHAR}, 
+      #{idNo,jdbcType=VARCHAR}, #{idType,jdbcType=VARCHAR}, #{level,jdbcType=VARCHAR}, 
+      #{pin,jdbcType=VARCHAR}, #{block,jdbcType=VARCHAR}, #{errcnt,jdbcType=INTEGER}, 
+      #{ltime,jdbcType=TIME}, #{accState,jdbcType=VARCHAR}, #{state,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="wdt.dbase.beans.CustInfo" >
+    insert into bs_cust_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="acc != null" >
+        acc,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="mobileNo != null" >
+        mobile_no,
+      </if>
+      <if test="idNo != null" >
+        id_no,
+      </if>
+      <if test="idType != null" >
+        id_type,
+      </if>
+      <if test="level != null" >
+        level,
+      </if>
+      <if test="pin != null" >
+        pin,
+      </if>
+      <if test="block != null" >
+        block,
+      </if>
+      <if test="errcnt != null" >
+        errcnt,
+      </if>
+      <if test="ltime != null" >
+        ltime,
+      </if>
+      <if test="accState != null" >
+        acc_state,
+      </if>
+      <if test="state != null" >
+        state,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="acc != null" >
+        #{acc,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="mobileNo != null" >
+        #{mobileNo,jdbcType=VARCHAR},
+      </if>
+      <if test="idNo != null" >
+        #{idNo,jdbcType=VARCHAR},
+      </if>
+      <if test="idType != null" >
+        #{idType,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null" >
+        #{level,jdbcType=VARCHAR},
+      </if>
+      <if test="pin != null" >
+        #{pin,jdbcType=VARCHAR},
+      </if>
+      <if test="block != null" >
+        #{block,jdbcType=VARCHAR},
+      </if>
+      <if test="errcnt != null" >
+        #{errcnt,jdbcType=INTEGER},
+      </if>
+      <if test="ltime != null" >
+        #{ltime,jdbcType=TIME},
+      </if>
+      <if test="accState != null" >
+        #{accState,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null" >
+        #{state,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="wdt.dbase.beans.CustInfoExample" resultType="java.lang.Integer" >
+    select count(*) from bs_cust_info
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByPrimaryKeySelective" parameterType="wdt.dbase.beans.CustInfo" >
+    update bs_cust_info
+    <set >
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="mobileNo != null" >
+        mobile_no = #{mobileNo,jdbcType=VARCHAR},
+      </if>
+      <if test="idNo != null" >
+        id_no = #{idNo,jdbcType=VARCHAR},
+      </if>
+      <if test="idType != null" >
+        id_type = #{idType,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null" >
+        level = #{level,jdbcType=VARCHAR},
+      </if>
+      <if test="pin != null" >
+        pin = #{pin,jdbcType=VARCHAR},
+      </if>
+      <if test="block != null" >
+        block = #{block,jdbcType=VARCHAR},
+      </if>
+      <if test="errcnt != null" >
+        errcnt = #{errcnt,jdbcType=INTEGER},
+      </if>
+      <if test="ltime != null" >
+        ltime = #{ltime,jdbcType=TIME},
+      </if>
+      <if test="accState != null" >
+        acc_state = #{accState,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null" >
+        state = #{state,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where acc = #{acc,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="wdt.dbase.beans.CustInfo" >
+    update bs_cust_info
+    set name = #{name,jdbcType=VARCHAR},
+      mobile_no = #{mobileNo,jdbcType=VARCHAR},
+      id_no = #{idNo,jdbcType=VARCHAR},
+      id_type = #{idType,jdbcType=VARCHAR},
+      level = #{level,jdbcType=VARCHAR},
+      pin = #{pin,jdbcType=VARCHAR},
+      block = #{block,jdbcType=VARCHAR},
+      errcnt = #{errcnt,jdbcType=INTEGER},
+      ltime = #{ltime,jdbcType=TIME},
+      acc_state = #{accState,jdbcType=VARCHAR},
+      state = #{state,jdbcType=VARCHAR}
+    where acc = #{acc,jdbcType=VARCHAR}
+  </update>
+</mapper>

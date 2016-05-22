@@ -1,4 +1,4 @@
-package wdtree.db.beans;
+package wdt.dbase.beans;
 
 import java.util.Date;
 

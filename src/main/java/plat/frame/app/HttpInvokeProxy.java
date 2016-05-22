@@ -284,6 +284,7 @@ public class HttpInvokeProxy extends HttpServletyReader
 	 */
 	private String packErrorResponse( AppException appEx )
 	{
+		logger.error(appEx.getErrInfo());
 		return packErrorResponse(appEx.getErrCode(),appEx.getErrInfo());
 	}
 

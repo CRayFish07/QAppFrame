@@ -1,6 +1,7 @@
 package plat.frame.app;
 
 import plat.constant.KResponse;
+import plat.tools.PermKeeper;
 
 public class AppException extends Exception
 {
@@ -27,10 +28,10 @@ public class AppException extends Exception
 	{
 		//如果不能对外暴露则直接返回同一错误
 		//只在调试的时候暴露错误.
-/*		if ( PermKeeper.isTest() || canThrowOut )
+		if ( PermKeeper.isTest() || canThrowOut )
 		{
-			return String.format("%s:%s", errCode, errMsg );
-		}*/
+			return String.format("%s::%s", errCode, errMsg );
+		}
 
 		return String.format("%s:%s", KResponse.FAIL, KResponse.MSG_FAIL );
 	}

@@ -1,7 +1,7 @@
-package wdtree.db.dao;
+package wdt.dbase.dao;
 
-import wdtree.db.beans.Blog;
-import wdtree.db.beans.BlogExample;
+import wdt.dbase.beans.Blog;
+import wdt.dbase.beans.BlogExample;
 
 public interface BlogMapper {
     int countByExample(BlogExample example);

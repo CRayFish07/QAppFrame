@@ -115,8 +115,8 @@ public class HttpInvokeProxy extends HttpServletyReader
 				list.add(context.getRspBody());
 			}
 
-			//			Object obj = AppContextHolder.getContext().getBean(targetClz);
-			Object obj = targetClz.newInstance();
+			Object obj = AppContextHolder.getContext().getBean(targetClz);
+//			Object obj = targetClz.newInstance();
 			if ( obj == null )
 			{
 				new AppException(KResponse.FAIL, "目标对象为空."+targetClz.toString());

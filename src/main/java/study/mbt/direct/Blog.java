@@ -1,4 +1,4 @@
-package plat.db.mybatis;
+package study.mbt.direct;
 
 import java.util.Date;
 

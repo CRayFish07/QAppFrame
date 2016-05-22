@@ -1,4 +1,4 @@
-package plat.db.mybatis;
+package study.mbt.direct;
 
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Select;

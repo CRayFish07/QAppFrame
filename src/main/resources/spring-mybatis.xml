@@ -22,8 +22,8 @@
 	</bean>
 	<!-- 扫描包 -->
 	<context:component-scan base-package="plat.frame.component" />
-	<context:component-scan base-package="trans.worldtree" />
-	<context:component-scan base-package="study.mbt.service" />
+	<context:component-scan base-package="trans.std" />
+	<context:component-scan base-package="sdt.mbt.service" />
 	
 	<!-- 配置上下文会话 -->
 	<bean id="springAppContext" class="plat.frame.app.AppContextHolder" />

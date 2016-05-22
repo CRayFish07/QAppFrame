@@ -14,11 +14,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import plat.constant.KResponse;
-import plat.frame.api.QBaseBean;
 import plat.frame.api.annonation.DEFEND_TYPE;
 import plat.frame.api.annonation.ENC_TYPE;
 import plat.frame.api.annonation.SESS_TYPE;
 import plat.frame.api.annonation.TransConfig;
+import plat.frame.api.meta.QBaseBean;
 import plat.frame.app.define.MessageType;
 import plat.frame.app.impl.TransContext;
 import plat.frame.app.msg.ReqMessageHead;

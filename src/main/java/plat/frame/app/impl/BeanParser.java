@@ -6,11 +6,11 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import plat.frame.api.APIBeanInfo;
-import plat.frame.api.APIEntity;
-import plat.frame.api.FieldEntity;
 import plat.frame.api.annonation.APIDefiner;
 import plat.frame.api.annonation.FieldDefiner;
+import plat.frame.api.meta.APIBeanInfo;
+import plat.frame.api.meta.APIEntity;
+import plat.frame.api.meta.FieldEntity;
 import plat.tools.StringUtil;
 
 public class BeanParser

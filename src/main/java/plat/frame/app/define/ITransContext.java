@@ -1,6 +1,6 @@
 package plat.frame.app.define;
 
-import plat.frame.api.QBaseBean;
+import plat.frame.api.meta.QBaseBean;
 
 public interface ITransContext
 {

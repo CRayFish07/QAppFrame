@@ -1,6 +1,6 @@
 package plat.frame.api.release;
 
-import plat.frame.api.APIRelease;
+import plat.frame.api.meta.APIRelease;
 
 /**
  * 此类用于API接口发布类名即模块分组名.

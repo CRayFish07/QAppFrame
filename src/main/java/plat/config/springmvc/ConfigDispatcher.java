@@ -14,7 +14,7 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
  */
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages={"plat.testpkg","plat.frame.app","plat.frame.api.controller"})
+@ComponentScan(basePackages={"plat.checker","plat.frame.api","plat.frame.app"})
 public class ConfigDispatcher extends WebMvcConfigurerAdapter //WebMvcConfigurationSupport
 {
 	@Bean

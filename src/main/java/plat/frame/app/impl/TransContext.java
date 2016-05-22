@@ -3,7 +3,7 @@ package plat.frame.app.impl;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import plat.frame.api.QBaseBean;
+import plat.frame.api.meta.QBaseBean;
 import plat.frame.app.define.ICTSession;
 import plat.frame.app.define.ITransContext;
 import plat.frame.app.msg.ReqMessageHead;

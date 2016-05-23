@@ -1,5 +1,6 @@
 package plat.frame.app;
 
+import java.io.IOException;
 import java.io.OutputStream;
 
 import javax.servlet.http.HttpServletRequest;
@@ -54,19 +55,31 @@ public class AppEntry extends HttpInvokeProxy
 		URLMapper urlMapper = new URLMapper(qconf.getAppName(), qconf.getTransPrefix());
 		urlMapper.doParse(request.getRequestURI());
 
+		OutputStream os = null;
 		try
 		{
 			String rspMsg = (String)callTargetMethod( request, urlMapper );
-			OutputStream os = response.getOutputStream();
+			os = response.getOutputStream();
 			response.setContentType("text/html");
 			os.write(rspMsg.getBytes("utf-8"));
 			os.flush();
-			os.close();
 		}
 		catch (Exception e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+		finally
+		{
+			try
+			{
+				os.close();
+			}
+			catch (IOException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 //		return "fail";

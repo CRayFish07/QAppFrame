@@ -30,7 +30,7 @@ public class UserRegisterTrans
 		cinfo.setPin(reqModel.getPin());
 		cinfo.setLtime(new Date());
 		
-		custInfoService.addCustInfo(cinfo);
+		custInfoService.insert(cinfo);
 		
 		rspModel.setToken(RandomUtil.getRandomSequence(20));
 		

@@ -146,13 +146,24 @@ public class HttpInvokeProxy extends HttpServletyReader
 		}
 		catch ( AppException exception )
 		{
+			logger.error("__AppException:"+exception.getErrMsg());
 			exception.printStackTrace();
 			return packErrorResponse(exception);
 		}
 		catch ( Exception exception )
 		{
+			String errMsg = exception.getMessage();
+			Throwable thex = exception.getCause();
+			if ( thex != null )
+			{
+				//需要返回给客户端.
+				String tmpMsg = thex.getMessage();
+				errMsg = tmpMsg.charAt(0) == '@'?tmpMsg.substring(1):errMsg;
+			}
+			
+			logger.error("__Exception:"+errMsg);
 			exception.printStackTrace();
-			return packErrorResponse( KResponse.FAIL, "不好意思,系统开了个小差." );
+			return packErrorResponse( KResponse.FAIL,  errMsg );
 		}
 
 		//		return "fail";
@@ -284,8 +295,7 @@ public class HttpInvokeProxy extends HttpServletyReader
 	 */
 	private String packErrorResponse( AppException appEx )
 	{
-		logger.error(appEx.getErrInfo());
-		return packErrorResponse(appEx.getErrCode(),appEx.getErrInfo());
+		return packErrorResponse(appEx.getErrCode(),appEx.getErrMsg());
 	}
 
 	private String packErrorResponse( String errCode, String errMsg )
@@ -295,6 +305,11 @@ public class HttpInvokeProxy extends HttpServletyReader
 		{
 			mark = RandomUtil.randomInt(7)+"_";
 			logger.info("__ERRMARK:"+mark+errMsg);
+		}
+		
+		if ( StringUtil.isEmpty(errMsg))
+		{
+			errMsg = "不好意思,系统开了个小差.";
 		}
 
 		RspMessageHead errHead = new RspMessageHead();
@@ -449,7 +464,7 @@ public class HttpInvokeProxy extends HttpServletyReader
 		if ( !sign0.equalsIgnoreCase(mysign) )
 		{
 			logger.error(String.format("ERRCODE[%s][数据签名错误,mysign=%s]",KResponse.TRANS_ILLEGAL,mysign));
-			throw new AppException( KResponse.TRANS_ILLEGAL, "报文签名出错.", false );
+			throw new AppException( KResponse.TRANS_ILLEGAL, "报文签名出错." );
 		}
 
 		String AESKey = new String( RSATools.getInstance().dencryptData(encAESKey),"UTF-8");

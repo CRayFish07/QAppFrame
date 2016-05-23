@@ -1,18 +1,24 @@
 package wdt.dbase.dao;
 
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
 import wdt.dbase.beans.CustInfo;
 import wdt.dbase.beans.CustInfoExample;
 
 public interface CustInfoMapper {
-    int countByExample(CustInfoExample example);
-
     int deleteByPrimaryKey(String acc);
 
     int insert(CustInfo record);
 
     int insertSelective(CustInfo record);
 
+    List<CustInfo> selectByExample(CustInfoExample example);
+
     CustInfo selectByPrimaryKey(String acc);
+
+    int updateByExampleSelective(@Param("record") CustInfo record, @Param("example") CustInfoExample example);
+
+    int updateByExample(@Param("record") CustInfo record, @Param("example") CustInfoExample example);
 
     int updateByPrimaryKeySelective(CustInfo record);
 

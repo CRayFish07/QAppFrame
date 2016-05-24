@@ -3,7 +3,7 @@
 <generatorConfiguration>
 	<!-- 操作说明 -->
 	<!-- http://www.mybatis.org/generator/configreference/table.html -->
-	<!-- jar -jar E:\mypro\lib\mybatis-generator-core-1.3.2.jar -configfile E:\ebanksvn2\source\pro000\directBankPro000\QAppFrame\MBG.xml -->
+	<!-- java -jar E:\mypro\lib\mybatis-generator-core-1.3.2.jar -configfile E:\ebanksvn2\source\pro000\directBankPro000\QAppFrame\MBG.xml -->
 		
 	<!-- 数据库驱动包位置 -->
 	<classPathEntry

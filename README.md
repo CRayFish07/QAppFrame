@@ -20,7 +20,7 @@
  * 本地测试：`GET` http://localhost:8080/QAppFrame/api/list/APIExample.api
  * 样例展示：`GET` http://119.29.198.112:8080/QAppFrame/api/list/APIExample.api
 * 交易请求和返回报文示例
- * 本地测试：`POST` http://localhost:8080/QAppFrame/worldtree/ulogin/UserLogin/login.gmt
+ * 本地测试：`POST` http://localhost:8080/QAppFrame/wdt/rlogin/UserLogin/login.gmt
  * 样例展示：`POST` http://119.29.198.112:8080/QAppFrame/worldtree/ulogin/UserLogin/login.gmt
  * `BODY-CONTENT` FF01{"head":{},"body":{"mobileNo":"18621596661","idType":"00"}}
 

@@ -4,10 +4,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import plat.frame.api.meta.QBaseBean;
-import plat.frame.app.define.ICTSession;
 import plat.frame.app.define.ITransContext;
 import plat.frame.app.msg.ReqMessageHead;
 import plat.frame.app.msg.RspMessageHead;
+import plat.frame.app.session.ICTSession;
 
 /**
  * 应用上下文.

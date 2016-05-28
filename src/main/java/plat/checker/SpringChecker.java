@@ -41,6 +41,6 @@ public class SpringChecker
 	private static void testConfig( ApplicationContext context )
 	{
 		QConfig qconf = context.getBean(QConfig.class);
-		XLog.log("%s,%s,%s", qconf.getTransPrefix(),qconf.getRSAConfigPath(),qconf.getAppName().length()+"");
+		XLog.log("%s,%s,%s,%s", qconf.getTransPrefix(),qconf.getRSAConfigPath(),qconf.getAppName().length()+"",qconf.getJdbcDriver());
 	}
 }

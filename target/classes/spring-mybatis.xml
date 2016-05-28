@@ -23,7 +23,7 @@
 	<!-- 交易模块扫描包 -->
 	<context:component-scan base-package="trans" />
 	<context:component-scan base-package="wdt.dbase.service" />
-	
+
 	<!-- 平台模块扫描包 -->
 	<context:component-scan base-package="plat.frame.component" />
 
@@ -42,7 +42,7 @@
 		<property name="username" value="${jdbc.username}" />
 		<property name="password" value="${jdbc.password}" />
 		<!-- 初始化连接大小 -->
-		<property name="initialSize" value="0" />
+		<property name="initialSize" value="2" />
 		<!-- 连接池最大使用连接数量 -->
 		<property name="maxActive" value="20" />
 		<!-- 连接池最大空闲 -->
@@ -96,6 +96,7 @@
 		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="dataSource" />
 	</bean>
+	
 
 	<!-- 注解方式配置事物 -->
 	<!-- <tx:annotation-driven transaction-manager="transactionManager" /> -->
@@ -148,5 +149,4 @@
 		<aop:advisor advice-ref="druid-stat-interceptor"
 			pointcut-ref="druid-stat-pointcut" />
 	</aop:config>
-
 </beans>

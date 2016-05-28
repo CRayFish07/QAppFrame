@@ -23,14 +23,14 @@ import plat.frame.api.annonation.FieldDefiner;
 import plat.frame.api.annonation.SESS_TYPE;
 import plat.frame.api.annonation.TransConfig;
 import plat.frame.api.meta.QBaseBean;
-import plat.frame.app.define.ICTSession;
 import plat.frame.app.define.MessageType;
-import plat.frame.app.impl.CTSessionFactory;
 import plat.frame.app.impl.TargetSearcher;
 import plat.frame.app.impl.TransContext;
 import plat.frame.app.impl.URLMapper;
 import plat.frame.app.msg.ReqMessageHead;
 import plat.frame.app.msg.RspMessageHead;
+import plat.frame.app.session.CTSessionFactory;
+import plat.frame.app.session.ICTSession;
 import plat.security.enc.AESTools;
 import plat.security.enc.MD5Encrypt;
 import plat.security.enc.RSATools;
@@ -81,14 +81,14 @@ public class HttpInvokeProxy extends HttpServletyReader
 			long time1 = new Date().getTime();
 			logger.info("__TIME_COUNT:METHOD_SEARCH:"+(time1 - time0));
 
-			long time2 = new Date().getTime();
-			logger.info("__TIME_COUNT:INTPUT_READ:"+(time2 - time1));
-
 			//创建会话CTSessionFactory
 			ICTSession session = new CTSessionFactory()
 			.setRequset(request)
 			.setSessType(SESS_TYPE.HTTP_SESS)
 			.createSession();
+			
+			long time2 = new Date().getTime();
+			logger.info("__TIME_COUNT:INTPUT_READ:"+(time2 - time1));
 
 			//创建应用上下文.
 			TransContext context = new TransContext().setSession(session);

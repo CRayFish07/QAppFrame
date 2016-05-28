@@ -1,6 +1,7 @@
 package plat.frame.app.define;
 
 import plat.frame.api.meta.QBaseBean;
+import plat.frame.app.session.ICTSession;
 
 public interface ITransContext
 {

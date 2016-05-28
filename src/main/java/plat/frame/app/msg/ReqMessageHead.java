@@ -16,7 +16,7 @@ public class ReqMessageHead
 	//系统类型
 	private String osType;
 	
-	//系统类型
+	//App版本
 	private String appVersion;
 	
 	//token

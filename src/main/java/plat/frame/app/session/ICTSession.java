@@ -1,4 +1,4 @@
-package plat.frame.app.define;
+package plat.frame.app.session;
 
 /**
  * 会话对象接口类.

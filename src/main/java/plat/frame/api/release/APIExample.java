@@ -15,9 +15,9 @@ public class APIExample extends APIRelease
 	
 	//此URL对格式有严格要求,必须两个一起即:接口简述+地址URL
 	public String[] apiInfos = {
-			"登录模块",										//模块信息介绍
-			"worldtree/ulogin/UserLogin/login.api",			//首页地址.
-			"获取客户信息模块",
-			"worldtree/ulogin/UserLogin/login.api"
+			"注册模块",									//模块信息介绍
+			"wdt/rlogin/UserLogin/login.api",			//首页地址.
+			"登录模块",
+			"wdt/rlogin/UserLogin/login.api"
 		};
 }

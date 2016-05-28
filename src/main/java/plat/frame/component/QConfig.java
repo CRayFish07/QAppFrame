@@ -20,6 +20,9 @@ public class QConfig
 	
 	@Value("${DEBUG.apiHostURL:http://localhost:8080/QAppFrame}")
 	private String apiHostURL;
+	
+	@Value("${jdbc.driver}")
+	private String jdbcDriver;
 
 	public String getTransPrefix() {
 		return transPrefix;
@@ -59,5 +62,13 @@ public class QConfig
 
 	public void setApiHostURL(String apiHostURL) {
 		this.apiHostURL = apiHostURL;
+	}
+
+	public String getJdbcDriver() {
+		return jdbcDriver;
+	}
+
+	public void setJdbcDriver(String jdbcDriver) {
+		this.jdbcDriver = jdbcDriver;
 	}
 }

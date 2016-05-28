@@ -28,7 +28,7 @@ public class AppEntry extends HttpInvokeProxy
 	 * test, get rid of it when on release.
 	 * @return
 	 */
-	@RequestMapping(value="/helloq.gmt",method=RequestMethod.GET)
+	@RequestMapping(value="/hello.gmt",method=RequestMethod.GET)
 	@ResponseBody
 	public String letsStart()
 	{

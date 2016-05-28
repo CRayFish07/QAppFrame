@@ -1,9 +1,7 @@
-package plat.frame.app.impl;
+package plat.frame.app.session;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-
-import plat.frame.app.define.ICTSession;
 
 /**
  * 会话实现类.

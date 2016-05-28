@@ -1,13 +1,13 @@
-package plat.frame.app.impl;
+package plat.frame.app.session;
 
 import javax.servlet.http.HttpServletRequest;
 
 import plat.frame.api.annonation.SESS_TYPE;
-import plat.frame.app.define.ICTSession;
 import plat.frame.app.define.ITransContext;
 
 /**
  * 上线文工厂，包括会话管理.
+ * 如果没有指定create标志，那么有则获取会话，没有则不创建会话.
  * @author zhangcq
  *
  */
@@ -31,6 +31,7 @@ public class CTSessionFactory
 			case HTTP_SESS:
 				return new CTHttpSession( request, createSess );
 			case RDS_SESS:
+				return new 
 				break;
 			default:
 				break;

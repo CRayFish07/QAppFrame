@@ -34,4 +34,9 @@ public class KResponse
 	public static final String MSG_INPUT_ERROR = "请求数据不正确或者缺失.";
 	public static final String MSG_TRANS_ILLEGAL = MSG_NETBUSI;
 	public static final String MSG_ENCRYPT_ERR = MSG_SYSERR;
+	
+	/*********
+	 * Redis response.
+	 */
+	public static final String RET_OK = "OK";
 }

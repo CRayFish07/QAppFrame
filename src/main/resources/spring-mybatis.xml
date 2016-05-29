@@ -29,6 +29,9 @@
 
 	<!-- 配置上下文会话 -->
 	<bean id="springAppContext" class="plat.frame.app.AppContextHolder" />
+	
+	<!-- 提前加载Redis会话. -->
+	<bean id="redisConnector" class="plat.frame.component.RedisConnector" />
 
 	<!-- JNDI方式配置数据源 -->
 	<!-- <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean"> 

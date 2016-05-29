@@ -3,6 +3,7 @@ package std.mbt.direct;
 import java.io.IOException;
 import java.util.Date;
 
+import plat.tools.JsonCoder;
 import plat.tools.RandomUtil;
 import plat.tools.XLog;
 import redis.clients.jedis.Jedis;
@@ -31,12 +32,12 @@ public class RedisTest extends Thread
 		}
 	}
 	
-	String sendMsg = "{\"custNo\":\"00000013162\",\"custName\":\"凌欢\",\"idtype\":\"01\",\"idNo\":\"632324198303056355\",\"level\":\"2\",\"mobileNo\":\"13498741236\",\"gender\":\"M\",\"loginTime\":\"Jul 22, 2016 10:22:28 PM\",\"loginType\":\"M\",\"vipLevel\":\"0\",\"state\":\"0\",\"binddevice\":true,\"secListNum\":\"\",\"cardList\":[{\"cardNo\":\"6214461111000009082\",\"cardType\":\"BCSEBANK\",\"cardId\":\"N8200\",\"bankNo\":\"\",\"bankName\":\"长沙银行e账户\",\"mobileNo\":\"13498741236\",\"prodName\":\"\",\"accountName\":\"凌欢\",\"state\":\"0\",\"mark\":\"0\",\"nickName\":\"\"},{\"cardNo\":\"6223687310873691173\",\"cardType\":\"BCS\",\"cardId\":\"N7301\",\"bankNo\":\"013601\",\"bankName\":\"长沙银行借记卡\",\"mobileNo\":\"13498741236\",\"prodName\":\"\",\"accountName\":\"凌欢\",\"state\":\"0\",\"mark\":\"0\",\"nickName\":\"\"}],\"secToolList\":[]}"
-	+"{\"custNo\":\"00000013162\",\"custName\":\"凌欢\",\"idtype\":\"01\",\"idNo\":\"632324198303056355\",\"level\":\"2\",\"mobileNo\":\"13498741236\",\"gender\":\"M\",\"loginTime\":\"Jul 22, 2016 10:22:28 PM\",\"loginType\":\"M\",\"vipLevel\":\"0\",\"state\":\"0\",\"binddevice\":true,\"secListNum\":\"\",\"cardList\":[{\"cardNo\":\"6214461111000009082\",\"cardType\":\"BCSEBANK\",\"cardId\":\"N8200\",\"bankNo\":\"\",\"bankName\":\"长沙银行e账户\",\"mobileNo\":\"13498741236\",\"prodName\":\"\",\"accountName\":\"凌欢\",\"state\":\"0\",\"mark\":\"0\",\"nickName\":\"\"},{\"cardNo\":\"6223687310873691173\",\"cardType\":\"BCS\",\"cardId\":\"N7301\",\"bankNo\":\"013601\",\"bankName\":\"长沙银行借记卡\",\"mobileNo\":\"13498741236\",\"prodName\":\"\",\"accountName\":\"凌欢\",\"state\":\"0\",\"mark\":\"0\",\"nickName\":\"\"}],\"secToolList\":[]}";
+	String sendMsg = "{\"custNo\":\"00000013162\",\"custName\":\"凌欢\",\"idtype\":\"01\",\"idNo\":\"632324198303056355\",\"level\":\"2\",\"mobileNo\":\"13498741236\",\"gender\":\"M\",\"loginTime\":\"Jul 22, 2016 10:22:28 PM\",\"loginType\":\"M\",\"vipLevel\":\"0\",\"state\":\"0\",\"binddevice\":true,\"secListNum\":\"\",\"cardList\":[{\"cardNo\":\"6214461111000009082\",\"cardType\":\"BCSEBANK\",\"cardId\":\"N8200\",\"bankNo\":\"\",\"bankName\":\"长沙银行e账户\",\"mobileNo\":\"13498741236\",\"prodName\":\"\",\"accountName\":\"凌欢\",\"state\":\"0\",\"mark\":\"0\",\"nickName\":\"\"},{\"cardNo\":\"6223687310873691173\",\"cardType\":\"BCS\",\"cardId\":\"N7301\",\"bankNo\":\"013601\",\"bankName\":\"长沙银行借记卡\",\"mobileNo\":\"13498741236\",\"prodName\":\"\",\"accountName\":\"凌欢\",\"state\":\"0\",\"mark\":\"0\",\"nickName\":\"\"}],\"secToolList\":[]}";
+//	+"{\"custNo\":\"00000013162\",\"custName\":\"凌欢\",\"idtype\":\"01\",\"idNo\":\"632324198303056355\",\"level\":\"2\",\"mobileNo\":\"13498741236\",\"gender\":\"M\",\"loginTime\":\"Jul 22, 2016 10:22:28 PM\",\"loginType\":\"M\",\"vipLevel\":\"0\",\"state\":\"0\",\"binddevice\":true,\"secListNum\":\"\",\"cardList\":[{\"cardNo\":\"6214461111000009082\",\"cardType\":\"BCSEBANK\",\"cardId\":\"N8200\",\"bankNo\":\"\",\"bankName\":\"长沙银行e账户\",\"mobileNo\":\"13498741236\",\"prodName\":\"\",\"accountName\":\"凌欢\",\"state\":\"0\",\"mark\":\"0\",\"nickName\":\"\"},{\"cardNo\":\"6223687310873691173\",\"cardType\":\"BCS\",\"cardId\":\"N7301\",\"bankNo\":\"013601\",\"bankName\":\"长沙银行借记卡\",\"mobileNo\":\"13498741236\",\"prodName\":\"\",\"accountName\":\"凌欢\",\"state\":\"0\",\"mark\":\"0\",\"nickName\":\"\"}],\"secToolList\":[]}";
 	
 	public static void main(String[] args)
 	{
-		for ( int i = 0; i < 10; ++i )
+		for ( int i = 0; i < 20; ++i )
 		{
 			RedisTest redis = new RedisTest();
 //			XLog.log("__ID=%d", redis.pool.hashCode());
@@ -68,10 +69,12 @@ public class RedisTest extends Thread
 			String key = RandomUtil.getRandomSequence(20);
 			
 			Pipeline pl = jedis.pipelined();
-			pl.set(key, sendMsg);
+			Response<String> response = pl.set(key, sendMsg);
 			pl.expire(key, 300);
 			pl.sync();
 			pl.close();
+			
+			XLog.log("__RESPONSE:"+response.get());
 			
 			Date time2 = new Date();
 			XLog.log("%s:%d", "setKey-expire",time2.getTime()-time1.getTime());

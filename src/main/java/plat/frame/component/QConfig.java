@@ -23,6 +23,24 @@ public class QConfig
 	
 	@Value("${jdbc.driver}")
 	private String jdbcDriver;
+	
+	@Value("${redis.server:localhost}")
+	private String redisServer;
+	
+	@Value("${redis.port:6379}")
+	private int redisPort;
+	
+	//客户端连接数
+	@Value("${redis.maxConn:12}")
+	private int redisMaxConn;
+	
+	//等待可用连接的最大超时时间.
+	@Value("${redis.maxTimeOut:5000}")
+	private	int redisTimeOut;
+	
+	//最大等待时间
+	@Value("${redis.MaxWaitMillis:8000}")
+	private int redisMaxAwaitMillSec;
 
 	public String getTransPrefix() {
 		return transPrefix;
@@ -70,5 +88,45 @@ public class QConfig
 
 	public void setJdbcDriver(String jdbcDriver) {
 		this.jdbcDriver = jdbcDriver;
+	}
+
+	public String getRedisServer() {
+		return redisServer;
+	}
+
+	public void setRedisServer(String redisServer) {
+		this.redisServer = redisServer;
+	}
+
+	public int getRedisPort() {
+		return redisPort;
+	}
+
+	public void setRedisPort(int redisPort) {
+		this.redisPort = redisPort;
+	}
+
+	public int getRedisMaxConn() {
+		return redisMaxConn;
+	}
+
+	public void setRedisMaxConn(int redisMaxConn) {
+		this.redisMaxConn = redisMaxConn;
+	}
+
+	public int getRedisTimeOut() {
+		return redisTimeOut;
+	}
+
+	public void setRedisTimeOut(int redisTimeOut) {
+		this.redisTimeOut = redisTimeOut;
+	}
+
+	public int getRedisMaxAwaitMillSec() {
+		return redisMaxAwaitMillSec;
+	}
+
+	public void setRedisMaxAwaitMillSec(int redisMaxAwaitMillSec) {
+		this.redisMaxAwaitMillSec = redisMaxAwaitMillSec;
 	}
 }

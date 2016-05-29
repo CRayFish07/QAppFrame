@@ -12,7 +12,7 @@ public class KBankApp
 	public static final String SECKEY_MARK = "__SECKEY_MARK";
 	
 	/***** 以下是qconf中配置的key >>>> ****/
-	public static final String duplicateMessageDefend = "duplicateMessageDefend";		//报文重复发送检测开关.
-	public static final String isTest = "DEBUG.isTest";										//是否是测试环境.
+	public static final String secMap = "securityMap";			//安全策略位图:1.报文重复发送检测开关.
+	public static final String isTest = "DEBUG.isTest";			//是否是测试环境.
 	/******** <<<<< *************/
 }

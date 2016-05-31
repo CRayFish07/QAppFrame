@@ -3,7 +3,7 @@ package plat.frame.app.session;
 import javax.servlet.http.HttpServletRequest;
 
 import plat.frame.api.annonation.SESS_TYPE;
-import plat.frame.app.define.ITransContext;
+import plat.tools.XLog;
 
 /**
  * 上线文工厂，包括会话管理.
@@ -31,13 +31,29 @@ public class CTSessionFactory
 			case HTTP_SESS:
 				return new CTHttpSession( request, createSess );
 			case RDS_SESS:
-				return new 
-				break;
+				CTRedisSession redisSess = buildRedisSession(sessToken);
+				if( !redisSess.init() )
+				{
+					XLog.logcinit("fatal error:fail to init the redis session.sessToken=%s",sessToken);
+					return null;
+				}
+				
+				return redisSess;
 			default:
 				break;
 		}
 		
 		return null;
+	}
+	
+	private CTRedisSession buildRedisSession( String sessToken )
+	{
+		if ( sessToken == null || sessToken.trim().length()==0 )
+		{
+			return new CTRedisSession();
+		}
+		
+		return new CTRedisSession(sessToken);
 	}
 	
 	//setters; >>>>>>>

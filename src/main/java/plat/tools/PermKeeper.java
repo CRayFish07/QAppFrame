@@ -12,7 +12,8 @@ public class PermKeeper
 	//防重检测开关
 	public static boolean dupDefend()
 	{
-		return PropertiesReader.getBoolean(KBankApp.duplicateMessageDefend);
+//		return PropertiesReader.getBoolean(KBankApp.duplicateMessageDefend);
+		return true;
 	}
 	
 	//是否测试环境
